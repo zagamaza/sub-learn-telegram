@@ -1,6 +1,6 @@
 tg:
-  token:
-  username:
+  token: 986396715:AAHzFxowZ0l1aXAw8hxWZkKvgTACLooWAx4
+  username: SubLearnBot
 
 logging:
   level:
@@ -8,3 +8,7 @@ logging:
 
 server:
   port: 8080
+
+sublearn:
+  back:
+    url: http://localhost:8082/
