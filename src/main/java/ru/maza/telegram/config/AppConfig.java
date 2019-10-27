@@ -2,10 +2,13 @@ package ru.maza.telegram.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.cloud.openfeign.FeignFormatterRegistrar;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
@@ -13,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 @Configuration
+@ComponentScan(basePackages = "ru.maza")
 public class AppConfig {
 
     @Bean
@@ -32,6 +36,15 @@ public class AppConfig {
         messageSource.addBasenames("messages");
         messageSource.setDefaultEncoding("utf-8");
         return messageSource;
+    }
+
+    @Bean
+    public FeignFormatterRegistrar localDateFeignFormatterRegistrar() {
+        return formatterRegistry -> {
+            DateTimeFormatterRegistrar registrar = new DateTimeFormatterRegistrar();
+            registrar.setUseIsoFormat(true);
+            registrar.registerFormatters(formatterRegistry);
+        };
     }
 
 }

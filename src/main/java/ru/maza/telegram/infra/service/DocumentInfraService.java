@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface DocumentInfraService {
 
-    List<BotApiMethod> addSubCollection(File file, Update update);
+    List<BotApiMethod> addSubEpisode(File file, Long episodeId, Update update);
 
 }

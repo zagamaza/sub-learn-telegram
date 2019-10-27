@@ -1,17 +1,20 @@
 package ru.maza.telegram.dto.buttons;
 
 import lombok.Data;
-import ru.maza.telegram.dto.callbackData.CallbackData;
+import ru.maza.telegram.dto.callbackData.ChooseTrialCD;
 
 @Data
 public class ChooseTrialButton extends Button {
 
     private Long trialId;
-    private boolean isStartTrial;
 
-    public ChooseTrialButton(String name, CallbackData callbackData, Integer countButtonInLine, Long trialId, boolean isStartTrial) {
-        super(name, callbackData, countButtonInLine);
+    public ChooseTrialButton(
+            String name,
+            Integer countButtonInLine,
+            Long trialId
+    ) {
+        super(name, new ChooseTrialCD(trialId), countButtonInLine);
         this.trialId = trialId;
-        this.isStartTrial = isStartTrial;
     }
+
 }

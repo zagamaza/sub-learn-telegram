@@ -6,9 +6,11 @@ import lombok.Data;
 public class ChooseCollectionCD extends CallbackData {
 
     private Long cltnId;
+    private Boolean isSerial;
 
-    public ChooseCollectionCD(String clazz, Long collectionId) {
-        super(clazz);
+    public ChooseCollectionCD(Long collectionId, Boolean isSerial) {
+        super(ChooseCollectionCD.class.getSimpleName());
+        this.isSerial = isSerial;
         this.cltnId = collectionId;
     }
 

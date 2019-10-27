@@ -4,15 +4,16 @@ import lombok.Data;
 
 @Data
 public class ChooseTrialCD extends CallbackData {
-    private Long trialId;
-    private boolean isStart;
 
-    public ChooseTrialCD(String clazz, Long trialId, boolean isStart) {
-        super(clazz);
+    private Long trialId;
+
+    public ChooseTrialCD(Long trialId) {
+        super(ChooseTrialCD.class.getSimpleName());
         this.trialId = trialId;
-        this.isStart = isStart;
     }
+
     public ChooseTrialCD() {
         super(null);
     }
+
 }

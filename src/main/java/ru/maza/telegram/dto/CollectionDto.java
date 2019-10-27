@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,6 +23,12 @@ public class CollectionDto {
     private Lang lang;
 
     private String name;
+
+    private String url;
+
+    private Integer rating;
+
+    private boolean isShared;
 
     private boolean isSerial;
 

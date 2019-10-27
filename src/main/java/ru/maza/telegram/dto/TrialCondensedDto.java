@@ -12,8 +12,6 @@ import java.time.LocalDateTime;
 public class TrialCondensedDto {
 
     private Long id;
-    private String name;
-    private Long userId;
     private Long collectionId;
     private String collectionName;
     private Integer percent;

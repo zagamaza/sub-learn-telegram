@@ -17,7 +17,7 @@ public class WordDto {
     private Long id;
     private String word;
     private String transcription;
-    private List<String> translation;
+    private List<TranslationDto> translation;
     private String lang;
     private LocalDateTime created;
 

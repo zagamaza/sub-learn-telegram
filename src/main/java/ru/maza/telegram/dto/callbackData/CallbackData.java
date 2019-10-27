@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class CallbackData {
+
     private String clazz;
 
 }

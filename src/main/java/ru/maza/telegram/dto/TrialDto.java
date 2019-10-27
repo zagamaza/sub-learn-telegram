@@ -16,11 +16,11 @@ public class TrialDto {
 
     private String name;
 
+    private EpisodeDto episodeDto;
+
+    private List<TrialWordDto> trialWords;
+
     private UserDto userDto;
-
-    private CollectionDto collectionDto;
-
-    private List<ResultDto> results;
 
     private Integer percent;
 

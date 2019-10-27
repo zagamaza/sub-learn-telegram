@@ -4,13 +4,16 @@ import lombok.Data;
 
 @Data
 public class CancelCD extends CallbackData {
-    private boolean isCanceled;
 
-    public CancelCD(String clazz, boolean isCanceled) {
+    private String command;
+
+    public CancelCD(String clazz, String command) {
         super(clazz);
-        this.isCanceled = isCanceled;
+        this.command = command;
     }
+
     public CancelCD() {
         super(null);
     }
+
 }

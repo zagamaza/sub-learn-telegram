@@ -8,8 +8,8 @@
 * Java OpenJDK 11
 * SpringBoot 2.1.6.RELEASE
 * Telegram Bot API 4.3.1
+* Redis
 * Gradle 5.4.1
-* PostgreSQL 11
 * Lombok 1.18.6
 * Spring Cloud 2.1.2.RELEASE
 * Google JSON 2.8.2

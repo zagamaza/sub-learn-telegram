@@ -14,16 +14,12 @@ import java.time.LocalDateTime;
 public class CollectionCondensedDto {
 
     private Long id;
-    private String lang;
+    private Lang lang;
     private String name;
+    private String url;
+    private Integer rating;
+    private boolean isShared;
+    private Boolean isSerial;
     private LocalDateTime created;
 
-    public static CollectionCondensedDto from(CollectionDto collectionDto) {
-        return new CollectionCondensedDto(
-                collectionDto.getId(),
-                collectionDto.getLang(),
-                collectionDto.getName(),
-                collectionDto.getCreated()
-        );
-    }
 }

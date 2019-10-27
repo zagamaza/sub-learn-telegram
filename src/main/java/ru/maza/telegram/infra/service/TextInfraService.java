@@ -7,15 +7,9 @@ import ru.maza.telegram.dto.UserDto;
 import java.util.List;
 
 public interface TextInfraService {
-    List<BotApiMethod> getCollectionsByUserId(Update update);
 
-    List<BotApiMethod> getTrialsByUserId(Update update);
-
-    UserDto saveUser(Update update);
+    UserDto saveUser(Update update, Integer userId);
 
     List<BotApiMethod> translateWord(String answer, Update update);
 
-    List<BotApiMethod> createCollection(Update update);
-
-    List<BotApiMethod> setCollectionName(Update update);
 }

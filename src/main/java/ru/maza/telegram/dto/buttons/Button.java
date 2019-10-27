@@ -5,6 +5,7 @@ import ru.maza.telegram.dto.callbackData.CallbackData;
 
 @Data
 public class Button {
+
     private String name;
     private CallbackData callbackData;
     private Integer countButtonInLine;

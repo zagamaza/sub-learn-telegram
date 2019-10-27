@@ -1,21 +1,29 @@
 package ru.maza.telegram.dto.buttons;
 
-import lombok.Getter;
-import lombok.Setter;
-import ru.maza.telegram.dto.callbackData.CallbackData;
+import lombok.Data;
+import ru.maza.telegram.dto.callbackData.CTlteCD;
 
-@Getter
-@Setter
+@Data
 public class ChooseTranslateButton extends Button {
-    private Long wordId;
-    private Long trialId;
-    private Boolean isRight;
 
-    public ChooseTranslateButton(String name, CallbackData callbackData, Long wordId, Long trialId, Boolean isRight, Integer countButtonInLine) {
-        super(name, callbackData, countButtonInLine);
-        this.wordId = wordId;
+    private Long trialWordId;
+    private Long trialId;
+    private Long wordId;
+    private Long rightWordId;
+
+    public ChooseTranslateButton(
+            String name,
+            Long trialWordId,
+            Long trialId,
+            Long wordId,
+            Long rightWordId,
+            Integer countButtonInLine
+    ) {
+        super(name, new CTlteCD(trialWordId, trialId, wordId, rightWordId), countButtonInLine);
+        this.trialWordId = trialWordId;
         this.trialId = trialId;
-        this.isRight = isRight;
+        this.wordId = wordId;
+        this.rightWordId = rightWordId;
     }
 
 }
