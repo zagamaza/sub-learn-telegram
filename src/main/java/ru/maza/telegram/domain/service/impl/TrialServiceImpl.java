@@ -61,6 +61,7 @@ public class TrialServiceImpl implements TrialService {
 
         keyboard.stream()
                 .filter(inlineKeyboardButtons -> inlineKeyboardButtons.size() < 2)
+                .filter(inlineKeyboardButtons -> !inlineKeyboardButtons.get(0).getText().equals("🔙 Назад"))
                 .map(inlineKeyboardButtons -> inlineKeyboardButtons.get(0))
                 .forEach(inlineKeyboard -> {
                     CTlteCD chooseTranslate = null;
