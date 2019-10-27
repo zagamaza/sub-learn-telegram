@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,8 +60,19 @@ public class EpisodeServiceImpl implements EpisodeService {
     }
 
     @Override
-    public List<BotApiMethod> getMessageChooseSerial(CollectionDto collectionDto, Update update) {
-        return null;
+    public List<BotApiMethod> getMessageChooseSerial(List<Integer> seasons, CollectionDto collectionDto, Update update) {
+        List<Button> buttons = seasons.stream()
+                .map(season -> new ChooseSeasonButton(
+                        getMessage("button.season", EmojiUtils.extractEmojiPercent(season)),
+                        collectionDto.getId(),
+                        season,
+                        1)
+                )
+                .collect(Collectors.toList());
+        buttons.add(new CancelButton(getMessage("button.cancel.back"), "/my_collection", 1));
+        String text = getMessage("serial.choose.name",collectionDto.getName());
+        InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);
+        return telegramService.getTelegramMessage(update, keyboardMarkup, text);
     }
 
     @Override
@@ -90,18 +102,7 @@ public class EpisodeServiceImpl implements EpisodeService {
                 2
         ));
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);
-
-        if (update.getCallbackQuery().getMessage() != null) {
-            editMessage = telegramService.getEditMessage(update);
-            editMessage.setReplyMarkup(keyboardMarkup);
-            editMessage.setText(text);
-            return Collections.singletonList(editMessage);
-        } else {
-            sendMessage = telegramService.getSendMessage(update);
-            sendMessage.setReplyMarkup(keyboardMarkup);
-            sendMessage.setText(text);
-            return Collections.singletonList(sendMessage);
-        }
+        return telegramService.getTelegramMessage(update, keyboardMarkup, text);
     }
 
     private String getMessage(String key, Object... args) {

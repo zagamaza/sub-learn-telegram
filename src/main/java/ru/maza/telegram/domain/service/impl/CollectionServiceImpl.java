@@ -143,19 +143,7 @@ public class CollectionServiceImpl implements CollectionService {
                 getMessage("button.delete.collection"),
                 1
         )));
-
-        if (update.getCallbackQuery().getMessage() != null) {
-            editMessage = telegramService.getEditMessage(update);
-            editMessage.setReplyMarkup(keyboardMarkup);
-            editMessage.setText(text);
-            return Collections.singletonList(editMessage);
-        } else {
-            sendMessage = telegramService.getSendMessage(update);
-            sendMessage.setReplyMarkup(keyboardMarkup);
-            sendMessage.setText(text);
-            return Collections.singletonList(sendMessage);
-        }
-
+        return telegramService.getTelegramMessage(update, keyboardMarkup, text);
     }
 
     private String getMessage(String key, Object... args) {

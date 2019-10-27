@@ -30,6 +30,16 @@ public interface EpisodeClientApi {
     @GetMapping("/episodes/{id}/users/{userId}")
     Integer getLearnedPercent(@PathVariable("id") Long id, @PathVariable("userId") Long userId);
 
+    @GetMapping("/episodes/collections/{collectionId}/seasons")
+    List<Integer> getSeasonsByCollectionId(@PathVariable("collectionId") Long collectionId);
+
+    @GetMapping("/episodes/collections/{collectionId}")
+    List<EpisodeDto> getSeasonsByCollectionId(
+            @PathVariable("collectionId") Long collectionId,
+            @RequestParam("season") Integer season,
+            Pageable pageable
+    );
+
     @PostMapping("/episodes")
     EpisodeDto create(@RequestBody EpisodeRequest episodeRequest);
 

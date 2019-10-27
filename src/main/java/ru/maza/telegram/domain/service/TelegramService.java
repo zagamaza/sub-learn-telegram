@@ -60,6 +60,7 @@ public interface TelegramService {
 
     InlineQueryResultArticle fillInlineQueryResultPhoto(CollectionCondensedDto collectionCondensedDto);
 
+    List<BotApiMethod> getTelegramMessage(Update update, InlineKeyboardMarkup keyboardMarkup, String text);
 }
 
 

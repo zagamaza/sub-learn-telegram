@@ -281,6 +281,23 @@ public class TelegramServiceImpl implements TelegramService {
         return inlineQueryResultArticle;
     }
 
+    @Override
+    public List<BotApiMethod> getTelegramMessage(Update update, InlineKeyboardMarkup keyboardMarkup, String text) {
+        EditMessageText editMessage;
+        SendMessage sendMessage;
+        if (update.getCallbackQuery().getMessage() != null) {
+            editMessage = getEditMessage(update);
+            editMessage.setReplyMarkup(keyboardMarkup);
+            editMessage.setText(text);
+            return Collections.singletonList(editMessage);
+        } else {
+            sendMessage = getSendMessage(update);
+            sendMessage.setReplyMarkup(keyboardMarkup);
+            sendMessage.setText(text);
+            return Collections.singletonList(sendMessage);
+        }
+    }
+
     private String getMessage(String key, Object... args) {
         return this.messageSource.getMessage(key, args, Locale.getDefault());
     }

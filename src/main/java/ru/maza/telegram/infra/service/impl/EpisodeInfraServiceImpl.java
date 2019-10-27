@@ -43,12 +43,9 @@ public class EpisodeInfraServiceImpl implements EpisodeInfraService {
     }
 
     @Override
-    public List<BotApiMethod> chooseSerial(
-            CollectionDto collectionDto,
-            UserDto userDto,
-            Update update
-    ) {
-        return episodeService.getMessageChooseSerial(collectionDto, update);
+    public List<BotApiMethod> chooseSerial(CollectionDto collectionDto, UserDto userDto, Update update) {
+        List<Integer> seasons = episodeClientApi.getSeasonsByCollectionId(collectionDto.getId());
+        return episodeService.getMessageChooseSerial(seasons, collectionDto, update);
     }
 
     @Override

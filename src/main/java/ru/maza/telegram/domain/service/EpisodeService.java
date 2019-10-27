@@ -14,7 +14,7 @@ public interface EpisodeService {
 
     List<BotApiMethod> afterSaveSub(EpisodeDto episodeDto, Update update);
 
-    List<BotApiMethod> getMessageChooseSerial(CollectionDto collectionDto, Update update);
+    List<BotApiMethod> getMessageChooseSerial(List<Integer> seasons, CollectionDto collectionDto, Update update);
 
     List<BotApiMethod> getMessageChooseFilm(
             CollectionDto collectionDto,
