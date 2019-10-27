@@ -7,4 +7,8 @@ logging:
     root: INFO
 
 server:
-  port: 8080
+  port: 8083
+
+sublearn:
+  back:
+    url: http://localhost:8082/
