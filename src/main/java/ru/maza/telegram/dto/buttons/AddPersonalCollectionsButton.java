@@ -6,12 +6,17 @@ import ru.maza.telegram.dto.callbackData.AddPersonalCollectionCD;
 @Data
 public class AddPersonalCollectionsButton extends Button {
 
-    public AddPersonalCollectionsButton(String name, Integer count) {
+    private Long collectionId;
+    private Long episodeId;
+
+    public AddPersonalCollectionsButton(Long collectionId, Long episodeId, String name, Integer count) {
         super(
                 name,
-                new AddPersonalCollectionCD(AddPersonalCollectionCD.class.getSimpleName()),
+                new AddPersonalCollectionCD(collectionId, episodeId, AddPersonalCollectionCD.class.getSimpleName()),
                 count
         );
+        this.collectionId = collectionId;
+        this.episodeId = episodeId;
     }
 
 

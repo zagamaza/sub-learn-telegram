@@ -59,20 +59,12 @@ public class CollectionServiceImpl implements CollectionService {
     }
 
     @Override
-    public List<BotApiMethod> updateCollectionSerial(CollectionDto collectionDto, Update update) {
-        SendMessage sendMessage = telegramService.getSendMessage(update);
-        return null;
-
-
-    }
-
-    @Override
     public List<BotApiMethod> fillMessageHowYouAddCollection(Update update) {
         EditMessageText editMessageText = telegramService.getEditMessage(update);
         editMessageText.setText(getMessage("choose.add.collection.option"));
         List<Button> buttons = new ArrayList<>();
         buttons.add(new SearchCollectionButton(getMessage("button.search.collection"), 2));
-        buttons.add(new AddPersonalCollectionsButton(getMessage("button.add.personal.collection"), 1));
+        buttons.add(new AddPersonalCollectionsButton(null, null, getMessage("button.add.personal.collection"), 1));
         buttons.add(new CancelButton(getMessage("button.cancel.back"), "/my_collection", 2));
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);
         editMessageText.setReplyMarkup(keyboardMarkup);
@@ -107,7 +99,7 @@ public class CollectionServiceImpl implements CollectionService {
         if ((page.getPage() + 1) * 10 < page.getCount()) {
             collect.add(new PageButton("collection", page.getPage() + 1, false, RIGHT, 1));
         }
-        collect.add(new AddCollectionsButton("Add", 2));
+        collect.add(new AddCollectionsButton(getMessage("button.add.file"), 2));
         keyboard = telegramService.getKeyboardMarkup2(collect);
         editMessage.setReplyMarkup(keyboard);
         return Collections.singletonList(editMessage);
@@ -135,27 +127,13 @@ public class CollectionServiceImpl implements CollectionService {
 
     @Override
     public List<BotApiMethod> getMessageDeleteCollection(CollectionDto collectionDto, Update update) {
-        SendMessage sendMessage;
-        EditMessageText editMessage;
         String text = getMessage("collection.not.found", collectionDto.getName());
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(List.of(new DeleteCollectionButton(
                 collectionDto.getId(),
                 getMessage("button.delete.collection"),
                 1
         )));
-
-        if (update.getCallbackQuery().getMessage() != null) {
-            editMessage = telegramService.getEditMessage(update);
-            editMessage.setReplyMarkup(keyboardMarkup);
-            editMessage.setText(text);
-            return Collections.singletonList(editMessage);
-        } else {
-            sendMessage = telegramService.getSendMessage(update);
-            sendMessage.setReplyMarkup(keyboardMarkup);
-            sendMessage.setText(text);
-            return Collections.singletonList(sendMessage);
-        }
-
+        return telegramService.getTelegramMessage(update, keyboardMarkup, text);
     }
 
     private String getMessage(String key, Object... args) {

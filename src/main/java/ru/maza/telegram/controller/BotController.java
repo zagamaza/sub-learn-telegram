@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -18,6 +17,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.maza.telegram.domain.service.TelegramService;
 import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.callbackData.AddCollectionCD;
+import ru.maza.telegram.dto.callbackData.AddFileCD;
 import ru.maza.telegram.dto.callbackData.AddPersonalCollectionCD;
 import ru.maza.telegram.dto.callbackData.AddSearchCollectionCD;
 import ru.maza.telegram.dto.callbackData.CTlteCD;
@@ -25,14 +25,17 @@ import ru.maza.telegram.dto.callbackData.CallbackData;
 import ru.maza.telegram.dto.callbackData.CancelCD;
 import ru.maza.telegram.dto.callbackData.ChooseCollectionCD;
 import ru.maza.telegram.dto.callbackData.ChooseIsSerialCD;
+import ru.maza.telegram.dto.callbackData.ChooseSeasonCD;
 import ru.maza.telegram.dto.callbackData.ChooseStartTrialCD;
 import ru.maza.telegram.dto.callbackData.ChooseTrialCD;
+import ru.maza.telegram.dto.callbackData.ChsSeriesCD;
 import ru.maza.telegram.dto.callbackData.DelCollectionCD;
 import ru.maza.telegram.dto.callbackData.LearnedWordCD;
 import ru.maza.telegram.dto.callbackData.MyCollectionsCD;
 import ru.maza.telegram.dto.callbackData.MySettingsCD;
 import ru.maza.telegram.dto.callbackData.MyTrialsCD;
 import ru.maza.telegram.dto.callbackData.PageCD;
+import ru.maza.telegram.dto.callbackData.PageSeriesCD;
 import ru.maza.telegram.dto.callbackData.ScheduleCD;
 import ru.maza.telegram.dto.callbackData.ShowAllTrCD;
 import ru.maza.telegram.dto.callbackData.TranscriptionCD;
@@ -44,6 +47,7 @@ import ru.maza.telegram.infra.service.CallbackInfraService;
 import ru.maza.telegram.infra.service.CollectionInfraService;
 import ru.maza.telegram.infra.service.CommandInfraService;
 import ru.maza.telegram.infra.service.DocumentInfraService;
+import ru.maza.telegram.infra.service.EpisodeInfraService;
 import ru.maza.telegram.infra.service.TextInfraService;
 import ru.maza.telegram.infra.service.TrialInfraService;
 import ru.maza.telegram.infra.service.UserSettingInfraService;
@@ -67,11 +71,11 @@ public class BotController extends TelegramLongPollingBot {
     private final DocumentInfraService documentInfraService;
     private final TextInfraService textInfraService;
     private final CallbackInfraService callbackInfraService;
-    private final MessageSource messageSource;
     private final CommandInfraService commandInfraService;
 
     private final BotInfraService botInfraService;
     private final CollectionInfraService collectionInfraService;
+    private final EpisodeInfraService episodeInfraService;
     private final TrialInfraService trialInfraService;
     private final UserSettingInfraService userSettingInfraService;
 
@@ -111,17 +115,18 @@ public class BotController extends TelegramLongPollingBot {
                     case (ADD_FILE):
                         send(saveFile(update, command.getCommandId()));
                         break;
+                    case ("/add_season"):
+                        send(episodeInfraService.addSeason(command.getCommandId(), userDto, update));
+                        break;
+                    case ("/add_serial"):
+                        send(episodeInfraService.addSeries(command.getCommandId(), userDto, update));
+                        break;
                 }
             }
         }
 
         if (update.hasMessage() && update.getMessage().hasText()) {
             String answer = telegramService.getTextMessage(update).toLowerCase();
-//            Integer userId = telegramService.getUserId(update);
-
-//            UserDto userDto = textInfraService.saveUser(update, userId);
-
-
             switch (answer) {
                 case ("/start"):
                     send(botInfraService.getStartWindow(update, false));
@@ -176,8 +181,16 @@ public class BotController extends TelegramLongPollingBot {
             } else if (callbackData instanceof MyCollectionsCD) {
                 send(collectionInfraService.getAllCollection(userDto, update));
             } else if (callbackData instanceof AddPersonalCollectionCD) {
-                commandInfraService.save(new Command(userDto.getId(), NEW_COLLECTION, null));
-                send(collectionInfraService.wantCreatePersonalCollection(userDto, update));
+                AddPersonalCollectionCD addPersonalCollectionCD = (AddPersonalCollectionCD)callbackData;
+                if (addPersonalCollectionCD.getCtnId() == null && addPersonalCollectionCD.getEpdId() == null) {
+                    commandInfraService.save(new Command(userDto.getId(), NEW_COLLECTION, null));
+                    send(collectionInfraService.wantCreatePersonalCollection(userDto, update));
+                } else if (addPersonalCollectionCD.getCtnId() != null && addPersonalCollectionCD.getEpdId() == null) {
+                    send(episodeInfraService.createSerial(addPersonalCollectionCD.getCtnId(), update, userDto));
+                } else {
+                    commandInfraService.save(new Command(addPersonalCollectionCD.getCtnId(), "add_serial", null));
+                    send(episodeInfraService.wantToCreateSeries(addPersonalCollectionCD.getEpdId(), userDto, update));
+                }
             } else if (callbackData instanceof AddCollectionCD) {
                 send(collectionInfraService.wantCreateCollection(userDto, update));
             } else if (callbackData instanceof ChooseStartTrialCD) {
@@ -212,13 +225,28 @@ public class BotController extends TelegramLongPollingBot {
                 } else if (pageCD.getEntity().equals("trial")) {
                     send(trialInfraService.getTrialsByPage(userDto, pageCD, update));
                 }
-            }else if (callbackData instanceof LearnedWordCD){
+            } else if (callbackData instanceof LearnedWordCD) {
                 LearnedWordCD learnedWordCD = (LearnedWordCD)callbackData;
-                List<BotApiMethod> botApiMethods = trialInfraService.saveLearnedTrialWordAndGetNextWord(learnedWordCD.getTwId(),update);
+                List<BotApiMethod> botApiMethods = trialInfraService.saveLearnedTrialWordAndGetNextWord(
+                        learnedWordCD.getTwId(),
+                        update
+                );
                 send(botApiMethods);
                 if (botApiMethods.get(0) instanceof AnswerCallbackQuery) {
                     send(trialInfraService.repeatTrial(learnedWordCD.getTlId(), userDto, update));
                 }
+            } else if (callbackData instanceof ChooseSeasonCD) {
+                ChooseSeasonCD chooseSeasonCD = (ChooseSeasonCD)callbackData;
+                send(episodeInfraService.chooseSeason(chooseSeasonCD, userDto, update));
+            } else if (callbackData instanceof ChsSeriesCD) {
+                ChsSeriesCD chsSeriesCD = (ChsSeriesCD)callbackData;
+                send(episodeInfraService.chooseSeries(chsSeriesCD, userDto, update));
+            } else if (callbackData instanceof PageSeriesCD) {
+                PageSeriesCD pageSeriesCD = (PageSeriesCD)callbackData;
+                send(episodeInfraService.getSerialsByPage(userDto, pageSeriesCD, update));
+            }else if (callbackData instanceof AddFileCD) {
+                AddFileCD addFileCD = (AddFileCD)callbackData;
+                send(episodeInfraService.addFile(addFileCD.getEpisodeId(), userDto, update));
             }
 
 
