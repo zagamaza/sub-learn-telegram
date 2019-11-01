@@ -12,6 +12,7 @@ public class AddCollectionsButton extends Button {
                 new AddCollectionCD(AddCollectionCD.class.getSimpleName()),
                 count
         );
+
     }
 
 

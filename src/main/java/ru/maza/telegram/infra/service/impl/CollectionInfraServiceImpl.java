@@ -56,25 +56,24 @@ public class CollectionInfraServiceImpl implements CollectionInfraService {
         return botService.fillMessageHowYouAddCollection(update);
     }
 
-
     @Override
     public List<BotApiMethod> setIsSerialCollection(ChooseIsSerialCD chooseIsSerialCD, Update update, UserDto userDto) {
-        CollectionDto collectionDto = collectionClientApi.updateIsSerial(
+        collectionClientApi.updateIsSerial(
                 chooseIsSerialCD.getCltnId(),
                 chooseIsSerialCD.getIsSerial()
         );
         if (!chooseIsSerialCD.getIsSerial()) {
             return episodeInfraService.createFilm(chooseIsSerialCD, update, userDto);
         }
-        return collectionService.updateCollectionSerial(collectionDto, update);
+        return episodeInfraService.createSerial(chooseIsSerialCD.getCltnId(), update, userDto);
     }
 
     @Override
     public List<BotApiMethod> chooseCollection(Long collectionId, UserDto userDto, Update update) {
         CollectionDto collectionDto = collectionClientApi.get(collectionId);
-        if (isEmpty(collectionDto.getEpisodeDtos())) {
-            return collectionService.getMessageDeleteCollection(collectionDto, update);
-        }
+//        if (isEmpty(collectionDto.getEpisodeDtos())) {
+//            return collectionService.getMessageDeleteCollection(collectionDto, update);
+//        }
         if (!collectionDto.isSerial()) {
             return episodeInfraService.chooseFilm(collectionDto, userDto, update);
         }
@@ -88,13 +87,11 @@ public class CollectionInfraServiceImpl implements CollectionInfraService {
 
     @Override
     public List<BotApiMethod> addCollection(UserDto userDto, Long collectionId, Update update) {
-        CollectionDto collection = null;
         try {
-            collection = collectionClientApi.copy(collectionId, userDto.getId());
+            collectionClientApi.copy(collectionId, userDto.getId());
         }catch (FeignException e){
             return botService.getExceptionMessage(update);
         }
-//        List<BotApiMethod> messages = collectionService.getAlertCopiedCollection(update, collection);
         return chooseCollection(collectionId, userDto, update);
     }
 

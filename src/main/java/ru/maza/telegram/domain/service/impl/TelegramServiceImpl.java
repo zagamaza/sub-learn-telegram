@@ -31,6 +31,7 @@ import ru.maza.telegram.dto.callbackData.CallbackData;
 import ru.maza.telegram.utils.Parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -285,7 +286,7 @@ public class TelegramServiceImpl implements TelegramService {
     public List<BotApiMethod> getTelegramMessage(Update update, InlineKeyboardMarkup keyboardMarkup, String text) {
         EditMessageText editMessage;
         SendMessage sendMessage;
-        if (update.getCallbackQuery().getMessage() != null) {
+        if (update.hasCallbackQuery()&& update.getCallbackQuery().getMessage() != null) {
             editMessage = getEditMessage(update);
             editMessage.setReplyMarkup(keyboardMarkup);
             editMessage.setText(text);

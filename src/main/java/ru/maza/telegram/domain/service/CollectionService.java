@@ -21,8 +21,6 @@ public interface CollectionService {
 
     CollectionRequest fillCollectionRequest(Update update, UserDto userDto);
 
-    List<BotApiMethod> updateCollectionSerial(CollectionDto collectionDto, Update update);
-
     List<BotApiMethod> fillMessageHowYouAddCollection(Update update);
 
     List<BotApiMethod> fillMessageCollectionCreated(CollectionDto collectionDto, Update update);

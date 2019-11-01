@@ -5,8 +5,13 @@ import lombok.Data;
 @Data
 public class AddPersonalCollectionCD extends CallbackData {
 
-    public AddPersonalCollectionCD(String clazz) {
+    private Long ctnId;
+    private Long epdId;
+
+    public AddPersonalCollectionCD(Long ctnId, Long epdId, String clazz) {
         super(clazz);
+        this.ctnId = ctnId;
+        this.epdId = epdId;
     }
 
     public AddPersonalCollectionCD() {
