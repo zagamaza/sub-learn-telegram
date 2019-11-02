@@ -1,7 +1,6 @@
 package ru.maza.telegram.infra.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -80,7 +79,7 @@ public class TrialInfraServiceImpl implements TrialInfraService {
 
     @Override
     public BotApiMethod getAlertWithAllTranslates(CTlteCD chooseTranslateCD, Update update) {
-        return trialService.getAlertWithAllTranslate(wordClientApi.getWord(chooseTranslateCD.getRwid()), update);
+        return trialService.getAlertWithAllTranslate(wordClientApi.getWord(chooseTranslateCD.getRw()), update);
     }
 
     @Override

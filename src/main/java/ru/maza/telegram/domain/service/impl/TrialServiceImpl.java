@@ -66,15 +66,15 @@ public class TrialServiceImpl implements TrialService {
                 .forEach(inlineKeyboard -> {
                     CTlteCD chooseTranslate = null;
                     chooseTranslate = (CTlteCD)callbackService.getCallbackData(inlineKeyboard.getCallbackData());
-                    if (chooseTranslate.getRwid().equals(chooseTranslate.getWdId())) {
-                        if (chooseTranslate.getRwid().equals(chooseTranslateCD.getWdId())) {
+                    if (chooseTranslate.getRw().equals(chooseTranslate.getWd())) {
+                        if (chooseTranslate.getRw().equals(chooseTranslateCD.getWd())) {
                             inlineKeyboard.setText(OK + " " + inlineKeyboard.getText());
                         } else {
                             inlineKeyboard.setText(RIGHT + " " + inlineKeyboard.getText());
                         }
                     }
-                    if (chooseTranslate.getWdId().equals(chooseTranslateCD.getWdId()) &&
-                            !chooseTranslate.getRwid().equals(chooseTranslateCD.getWdId())) {
+                    if (chooseTranslate.getWd().equals(chooseTranslateCD.getWd()) &&
+                            !chooseTranslate.getRw().equals(chooseTranslateCD.getWd())) {
                         inlineKeyboard.setText(NOT + inlineKeyboard.getText());
                     }
                 });

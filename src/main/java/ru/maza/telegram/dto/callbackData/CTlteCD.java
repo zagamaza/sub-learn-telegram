@@ -9,17 +9,17 @@ import lombok.Setter;
 @Data
 public class CTlteCD extends CallbackData {
 
-    private Long twId;
-    private Long tlId;
-    private Long wdId;
-    private Long rwid;
+    private Long tw;
+    private Long tl;
+    private Long wd;
+    private Long rw;
 
-    public CTlteCD(Long twId, Long tlId, Long wdId, Long rwid) {
+    public CTlteCD(Long tw, Long tl, Long wd, Long rw) {
         super(CTlteCD.class.getSimpleName());
-        this.twId = twId;
-        this.tlId = tlId;
-        this.wdId = wdId;
-        this.rwid = rwid;
+        this.tw = tw;
+        this.tl = tl;
+        this.wd = wd;
+        this.rw = rw;
     }
 
     public CTlteCD() {

@@ -20,10 +20,10 @@ public class TrialWordRequest {
 
     public static TrialWordRequest from(CTlteCD chooseTranslateCD) {
         return new TrialWordRequest(
-                chooseTranslateCD.getTwId(),
+                chooseTranslateCD.getTw(),
                 null,
                 null,
-                chooseTranslateCD.getRwid().equals(chooseTranslateCD.getWdId()),
+                chooseTranslateCD.getRw().equals(chooseTranslateCD.getWd()),
                 true
         );
     }

@@ -155,13 +155,13 @@ public class BotController extends TelegramLongPollingBot {
                 List<BotApiMethod> botApiMethods = trialInfraService.saveResult(chooseTranslateCD, update);
                 send(botApiMethods);
                 if (botApiMethods.get(0) instanceof AnswerCallbackQuery) {
-                    send(trialInfraService.repeatTrial(chooseTranslateCD.getTlId(), userDto, update));
+                    send(trialInfraService.repeatTrial(chooseTranslateCD.getTl(), userDto, update));
                 }
                 if (userDto.getUserSettingDto().isShowAllTranslate()) {
                     send(trialInfraService.getAlertWithAllTranslates(chooseTranslateCD, update));
                 }
                 Thread.sleep(1000);
-                send(trialInfraService.getNextWord(chooseTranslateCD.getTlId(), update));
+                send(trialInfraService.getNextWord(chooseTranslateCD.getTl(), update));
             } else if (callbackData instanceof CancelCD) {
                 CancelCD cancelCD = (CancelCD)callbackData;
                 if ("/start".equals(cancelCD.getCommand())) {

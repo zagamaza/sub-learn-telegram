@@ -74,7 +74,7 @@ public class CallbackServiceImpl implements CallbackService {
         CallbackData callbackData = null;
         try {
             JsonNode jsonNode = objectMapper.readValue(data, JsonNode.class);
-            Class clazz = Class.forName(CALLBACK_DATA_PACKAGE + jsonNode.get("clazz").toString().replaceAll("\"", ""));
+            Class clazz = Class.forName(CALLBACK_DATA_PACKAGE + jsonNode.get("cz").toString().replaceAll("\"", ""));
             callbackData = (CallbackData)objectMapper.convertValue(jsonNode, clazz);
         } catch (Exception ignored) {
         }
