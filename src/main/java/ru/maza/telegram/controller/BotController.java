@@ -157,10 +157,11 @@ public class BotController extends TelegramLongPollingBot {
                 if (botApiMethods.get(0) instanceof AnswerCallbackQuery) {
                     send(trialInfraService.repeatTrial(chooseTranslateCD.getTl(), userDto, update));
                 }
-                if (userDto.getUserSettingDto().isShowAllTranslate()) {
+                if (!chooseTranslateCD.getRw().equals(chooseTranslateCD.getWd()) ||
+                        userDto.getUserSettingDto().isShowAllTranslate()) {
                     send(trialInfraService.getAlertWithAllTranslates(chooseTranslateCD, update));
                 }
-                Thread.sleep(1000);
+                Thread.sleep(500);
                 send(trialInfraService.getNextWord(chooseTranslateCD.getTl(), update));
             } else if (callbackData instanceof CancelCD) {
                 CancelCD cancelCD = (CancelCD)callbackData;
@@ -244,7 +245,7 @@ public class BotController extends TelegramLongPollingBot {
             } else if (callbackData instanceof PageSeriesCD) {
                 PageSeriesCD pageSeriesCD = (PageSeriesCD)callbackData;
                 send(episodeInfraService.getSerialsByPage(userDto, pageSeriesCD, update));
-            }else if (callbackData instanceof AddFileCD) {
+            } else if (callbackData instanceof AddFileCD) {
                 AddFileCD addFileCD = (AddFileCD)callbackData;
                 send(episodeInfraService.addFile(addFileCD.getEpisodeId(), userDto, update));
             }
