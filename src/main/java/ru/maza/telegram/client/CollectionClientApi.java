@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.maza.telegram.client.model.RestPageImpl;
 import ru.maza.telegram.dto.CollectionCondensedDto;
 import ru.maza.telegram.dto.CollectionDto;
 import ru.maza.telegram.dto.CollectionRequest;
@@ -22,10 +23,7 @@ public interface CollectionClientApi {
     CollectionDto get(@PathVariable("id") Long id);
 
     @GetMapping("/collections/condensed/users/{userId}")
-    List<CollectionCondensedDto> getCollectionByUserId(@PathVariable("userId") Long userId, Pageable pageable);
-
-    @GetMapping("/collections/condensed/users/{userId}/count")
-    Integer getCountCollectionByUserId(@PathVariable("userId") Long userId);
+    RestPageImpl<CollectionCondensedDto> getCollectionByUserId(@PathVariable("userId") Long userId, Pageable pageable);
 
     @GetMapping("/collections")
     List<CollectionCondensedDto> search(@RequestParam("collectionName") String collectionName, Pageable pageable);

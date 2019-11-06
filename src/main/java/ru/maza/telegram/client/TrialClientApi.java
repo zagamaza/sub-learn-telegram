@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.maza.telegram.client.model.RestPageImpl;
 import ru.maza.telegram.dto.TranslateOptionDto;
 import ru.maza.telegram.dto.TrialCondensedDto;
 import ru.maza.telegram.dto.TrialDto;
@@ -27,10 +28,7 @@ public interface TrialClientApi {
     List<TrialDto> getAll(Pageable pageable);
 
     @GetMapping("/trials/condensed/users/{userId}")
-    List<TrialCondensedDto> getLastConsedTrial(@PathVariable("userId") Long userId, Pageable pageable);
-
-    @GetMapping("/trials/condensed/users/{userId}/count")
-    Integer getCountTrialByUserId(@PathVariable("userId") Long userId);
+    RestPageImpl<TrialCondensedDto> getLastConsedTrial(@PathVariable("userId") Long userId, Pageable pageable);
 
     @GetMapping("/trials/users/{userId}/episodes/{episodeId}")
     TrialDto getLastNotFinishTrialByEpisodeIdAndUserId(

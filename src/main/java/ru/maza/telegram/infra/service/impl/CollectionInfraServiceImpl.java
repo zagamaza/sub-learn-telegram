@@ -14,6 +14,7 @@ import ru.maza.telegram.dto.CollectionCondensedDto;
 import ru.maza.telegram.dto.CollectionDto;
 import ru.maza.telegram.dto.CollectionRequest;
 import ru.maza.telegram.dto.Page;
+import ru.maza.telegram.client.model.RestPageImpl;
 import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.callbackData.ChooseIsSerialCD;
 import ru.maza.telegram.dto.callbackData.PageCD;
@@ -21,8 +22,6 @@ import ru.maza.telegram.infra.service.CollectionInfraService;
 import ru.maza.telegram.infra.service.EpisodeInfraService;
 
 import java.util.List;
-
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 @RequiredArgsConstructor
@@ -35,13 +34,13 @@ public class CollectionInfraServiceImpl implements CollectionInfraService {
 
     @Override
     public List<BotApiMethod> getAllCollection(UserDto userDto, Update update) {
-        Integer collectionCount = collectionClientApi.getCountCollectionByUserId(userDto.getId());
-        List<CollectionCondensedDto> collections = collectionClientApi.getCollectionByUserId(
+        RestPageImpl<CollectionCondensedDto> collections = collectionClientApi.getCollectionByUserId(
                 userDto.getId(),
                 PageRequest.of(0, 10, Sort.by("id"))
         );
+        Integer collectionCount = (int)collections.getTotalElements();
         Page page = new Page(collectionCount, 0);
-        return collectionService.getWindowAllCollection(page, collections, userDto, update);
+        return collectionService.getWindowAllCollection(page, collections.getContent(), userDto, update);
     }
 
     @Override
@@ -77,7 +76,7 @@ public class CollectionInfraServiceImpl implements CollectionInfraService {
         if (!collectionDto.isSerial()) {
             return episodeInfraService.chooseFilm(collectionDto, userDto, update);
         }
-        return episodeInfraService.chooseSerial(collectionDto,userDto, update);
+        return episodeInfraService.chooseSerial(collectionDto, userDto, update);
     }
 
     @Override
@@ -89,7 +88,7 @@ public class CollectionInfraServiceImpl implements CollectionInfraService {
     public List<BotApiMethod> addCollection(UserDto userDto, Long collectionId, Update update) {
         try {
             collectionClientApi.copy(collectionId, userDto.getId());
-        }catch (FeignException e){
+        } catch (FeignException e) {
             return botService.getExceptionMessage(update);
         }
         return chooseCollection(collectionId, userDto, update);
@@ -103,12 +102,13 @@ public class CollectionInfraServiceImpl implements CollectionInfraService {
 
     @Override
     public List<BotApiMethod> getCollectionByPage(UserDto userDto, PageCD pageCD, Update update) {
-        Integer collectionCount = collectionClientApi.getCountCollectionByUserId(userDto.getId());
-        List<CollectionCondensedDto> collections = collectionClientApi.getCollectionByUserId(
+        RestPageImpl<CollectionCondensedDto> collections = collectionClientApi.getCollectionByUserId(
                 userDto.getId(),
                 PageRequest.of(pageCD.getPage(), 10, Sort.by("id"))
         );
+        Integer collectionCount = (int)collections.getTotalElements();
         Page page = new Page(collectionCount, pageCD.getPage());
-        return collectionService.getWindowAllCollection(page, collections, userDto, update);
+        return collectionService.getWindowAllCollection(page, collections.getContent(), userDto, update);
     }
+
 }
