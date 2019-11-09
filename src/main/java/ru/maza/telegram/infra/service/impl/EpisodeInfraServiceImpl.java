@@ -14,6 +14,7 @@ import ru.maza.telegram.dto.CollectionDto;
 import ru.maza.telegram.dto.EpisodeDto;
 import ru.maza.telegram.dto.EpisodeRequest;
 import ru.maza.telegram.dto.Page;
+import ru.maza.telegram.client.model.RestPageImpl;
 import ru.maza.telegram.dto.TrialDto;
 import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.callbackData.ChooseIsSerialCD;
@@ -25,7 +26,6 @@ import ru.maza.telegram.infra.service.CommandInfraService;
 import ru.maza.telegram.infra.service.EpisodeInfraService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -70,7 +70,7 @@ public class EpisodeInfraServiceImpl implements EpisodeInfraService {
         EpisodeDto episodeDto = episodeClientApi.getAllByCollectionId(
                 collectionDto.getId(),
                 PageRequest.of(0, 1)
-        ).get(0);
+        ).getContent().get(0);
         episodeDto.setLearnedPercent(episodeClientApi.getLearnedPercent(episodeDto.getId(), userDto.getId()));
         TrialDto trialDto = trialClientApi.getLastNotFinishTrialByEpisodeIdAndUserId(
                 userDto.getId(),
@@ -82,22 +82,17 @@ public class EpisodeInfraServiceImpl implements EpisodeInfraService {
 
     @Override
     public List<BotApiMethod> chooseSeason(ChooseSeasonCD chooseSeasonCD, UserDto userDto, Update update) {
-        Integer episodeCount = episodeClientApi.getCountByCollectionIdAndSeason(
-                chooseSeasonCD.getClnId(),
-                chooseSeasonCD.getSeason()
-        );
         CollectionDto collectionDto = collectionClientApi.get(chooseSeasonCD.getClnId());
-        List<EpisodeDto> episodes = episodeClientApi
+        RestPageImpl<EpisodeDto> episodes = episodeClientApi
                 .getByCollectionIdAndSeason(
                         chooseSeasonCD.getClnId(),
                         chooseSeasonCD.getSeason(),
                         PageRequest.of(0, 10, Sort.by("episode"))
-                )
-                .stream()
-                .peek(e -> e.setCollectionDto(collectionDto))
-                .collect(Collectors.toList());
+                );
+        episodes.stream().forEach(e -> e.setCollectionDto(collectionDto));
+        Integer episodeCount = (int)episodes.getTotalElements();
         Page page = new Page(episodeCount, 0);
-        return episodeService.getMessageChooseSeason(page, episodes, update);
+        return episodeService.getMessageChooseSeason(page, episodes.getContent(), update);
     }
 
     @Override
@@ -114,17 +109,14 @@ public class EpisodeInfraServiceImpl implements EpisodeInfraService {
 
     @Override
     public List<BotApiMethod> getSerialsByPage(UserDto userDto, PageSeriesCD pageSeriesCD, Update update) {
-        Integer episodeCount = episodeClientApi.getCountByCollectionIdAndSeason(
-                pageSeriesCD.getClnId(),
-                pageSeriesCD.getSn()
-        );
-        List<EpisodeDto> episodes = episodeClientApi.getByCollectionIdAndSeason(
+        RestPageImpl<EpisodeDto> episodes = episodeClientApi.getByCollectionIdAndSeason(
                 pageSeriesCD.getClnId(),
                 pageSeriesCD.getSn(),
                 PageRequest.of(pageSeriesCD.getPg(), 10, Sort.by("episode"))
         );
+        Integer episodeCount = (int)episodes.getTotalElements();
         Page page = new Page(episodeCount, pageSeriesCD.getPg());
-        return episodeService.getMessageChooseSeason(page, episodes, update);
+        return episodeService.getMessageChooseSeason(page, episodes.getContent(), update);
     }
 
     @Override
@@ -136,14 +128,14 @@ public class EpisodeInfraServiceImpl implements EpisodeInfraService {
     @Override
     public List<BotApiMethod> addSeason(Long collectionId, UserDto userDto, Update update) {
         Integer season = Integer.parseInt(update.getMessage().getText());
-        List<EpisodeDto> episodes = episodeClientApi.getByCollectionIdAndSeason(
+        RestPageImpl<EpisodeDto> episodes = episodeClientApi.getByCollectionIdAndSeason(
                 collectionId,
                 season,
                 PageRequest.of(0, 1, Sort.by("episode"))
         );
-        if (!isEmpty(episodes)) {
+        if (!isEmpty(episodes.getContent())) {
             commandInfraService.save(new Command(userDto.getId(), "/add_season", collectionId));
-            return episodeService.getAlertSeasonAlreadyExists(episodes.get(0), update);
+            return episodeService.getAlertSeasonAlreadyExists(episodes.getContent().get(0), update);
         } else {
             EpisodeRequest episodeRequest = new EpisodeRequest(null, null, collectionId, season, 0);
             EpisodeDto episodeDto = episodeClientApi.create(episodeRequest);

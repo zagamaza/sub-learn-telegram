@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import ru.maza.telegram.client.model.RestPageImpl;
 import ru.maza.telegram.dto.EpisodeDto;
 import ru.maza.telegram.dto.EpisodeRequest;
 
@@ -22,10 +23,7 @@ public interface EpisodeClientApi {
     EpisodeDto get(@PathVariable("id") Long id);
 
     @GetMapping("/episodes/collections/{collectionId}")
-    List<EpisodeDto> getAllByCollectionId(@PathVariable("collectionId") Long collectionId, Pageable pageable);
-
-    @GetMapping("/episodes/collections/{collectionId}/count")
-    Integer getCountByCollectionId(@PathVariable("collectionId") Long collectionId);
+    RestPageImpl<EpisodeDto> getAllByCollectionId(@PathVariable("collectionId") Long collectionId, Pageable pageable);
 
     @GetMapping("/episodes/{id}/users/{userId}")
     Integer getLearnedPercent(@PathVariable("id") Long id, @PathVariable("userId") Long userId);
@@ -34,16 +32,10 @@ public interface EpisodeClientApi {
     List<Integer> getSeasonsByCollectionId(@PathVariable("collectionId") Long collectionId);
 
     @GetMapping("/episodes/collections/{collectionId}/season")
-    List<EpisodeDto> getByCollectionIdAndSeason(
+    RestPageImpl<EpisodeDto> getByCollectionIdAndSeason(
             @PathVariable("collectionId") Long collectionId,
             @RequestParam("season") Integer season,
             Pageable pageable
-    );
-
-    @GetMapping("/episodes/collections/{collectionId}/season/count")
-    Integer getCountByCollectionIdAndSeason(
-            @PathVariable("collectionId") Long collectionId,
-            @RequestParam("season") Integer season
     );
 
     @GetMapping("/episodes/collections/{collectionId}/season/series")

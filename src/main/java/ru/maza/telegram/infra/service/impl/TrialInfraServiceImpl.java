@@ -11,6 +11,7 @@ import ru.maza.telegram.client.TrialWordClientApi;
 import ru.maza.telegram.client.WordClientApi;
 import ru.maza.telegram.domain.service.TrialService;
 import ru.maza.telegram.dto.Page;
+import ru.maza.telegram.client.model.RestPageImpl;
 import ru.maza.telegram.dto.TranslateOptionDto;
 import ru.maza.telegram.dto.TrialCondensedDto;
 import ru.maza.telegram.dto.TrialDto;
@@ -61,14 +62,13 @@ public class TrialInfraServiceImpl implements TrialInfraService {
 
     @Override
     public List<BotApiMethod> getAllTrials(UserDto userDto, Update update) {
-        Integer collectionCount = trialClientApi.getCountTrialByUserId(userDto.getId());
-        List<TrialCondensedDto> lastConsedTrial = trialClientApi.getLastConsedTrial(
+        RestPageImpl<TrialCondensedDto> lastConsedTrial = trialClientApi.getLastConsedTrial(
                 userDto.getId(),
                 PageRequest.of(0, 10, Sort.by("id").descending())
         );
+        Integer collectionCount = (int)lastConsedTrial.getTotalElements();
         Page page = new Page(collectionCount, 0);
-        return trialService.fillMessageWithAllTrial(page, lastConsedTrial, update);
-
+        return trialService.fillMessageWithAllTrial(page, lastConsedTrial.getContent(), update);
     }
 
     @Override
@@ -84,13 +84,13 @@ public class TrialInfraServiceImpl implements TrialInfraService {
 
     @Override
     public List<BotApiMethod> getTrialsByPage(UserDto userDto, PageCD pageCD, Update update) {
-        Integer collectionCount = trialClientApi.getCountTrialByUserId(userDto.getId());
-        List<TrialCondensedDto> lastConsedTrial = trialClientApi.getLastConsedTrial(
+        RestPageImpl<TrialCondensedDto> lastConsedTrial = trialClientApi.getLastConsedTrial(
                 userDto.getId(),
                 PageRequest.of(pageCD.getPage(), 10, Sort.by("id"))
         );
+        Integer collectionCount = (int)lastConsedTrial.getTotalElements();
         Page page = new Page(collectionCount, pageCD.getPage());
-        return trialService.fillMessageWithAllTrial(page, lastConsedTrial, update);
+        return trialService.fillMessageWithAllTrial(page, lastConsedTrial.getContent(), update);
     }
 
     @Override
