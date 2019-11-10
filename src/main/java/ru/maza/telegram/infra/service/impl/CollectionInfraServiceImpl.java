@@ -7,7 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.maza.telegram.client.CollectionClientApi;
+import ru.maza.telegram.client.impl.CollectionClient;
 import ru.maza.telegram.domain.service.BotService;
 import ru.maza.telegram.domain.service.CollectionService;
 import ru.maza.telegram.dto.CollectionCondensedDto;
@@ -27,14 +27,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CollectionInfraServiceImpl implements CollectionInfraService {
 
-    private final CollectionClientApi collectionClientApi;
+    private final CollectionClient collectionClient;
     private final CollectionService collectionService;
     private final EpisodeInfraService episodeInfraService;
     private final BotService botService;
 
     @Override
     public List<BotApiMethod> getAllCollection(UserDto userDto, Update update) {
-        RestPageImpl<CollectionCondensedDto> collections = collectionClientApi.getCollectionByUserId(
+        RestPageImpl<CollectionCondensedDto> collections = collectionClient.getCollectionByUserId(
                 userDto.getId(),
                 PageRequest.of(0, 10, Sort.by("id"))
         );
@@ -46,7 +46,7 @@ public class CollectionInfraServiceImpl implements CollectionInfraService {
     @Override
     public List<BotApiMethod> createCollection(UserDto userDto, Update update) {
         CollectionRequest collectionRequest = collectionService.fillCollectionRequest(update, userDto);
-        CollectionDto collectionDto = collectionClientApi.create(collectionRequest);
+        CollectionDto collectionDto = collectionClient.create(collectionRequest);
         return collectionService.fillMessageCollectionCreated(collectionDto, update);
     }
 
@@ -57,7 +57,7 @@ public class CollectionInfraServiceImpl implements CollectionInfraService {
 
     @Override
     public List<BotApiMethod> setIsSerialCollection(ChooseIsSerialCD chooseIsSerialCD, Update update, UserDto userDto) {
-        collectionClientApi.updateIsSerial(
+        collectionClient.updateIsSerial(
                 chooseIsSerialCD.getCltnId(),
                 chooseIsSerialCD.getIsSerial()
         );
@@ -69,7 +69,7 @@ public class CollectionInfraServiceImpl implements CollectionInfraService {
 
     @Override
     public List<BotApiMethod> chooseCollection(Long collectionId, UserDto userDto, Update update) {
-        CollectionDto collectionDto = collectionClientApi.get(collectionId);
+        CollectionDto collectionDto = collectionClient.get(collectionId);
 //        if (isEmpty(collectionDto.getEpisodeDtos())) {
 //            return collectionService.getMessageDeleteCollection(collectionDto, update);
 //        }
@@ -87,7 +87,7 @@ public class CollectionInfraServiceImpl implements CollectionInfraService {
     @Override
     public List<BotApiMethod> addCollection(UserDto userDto, Long collectionId, Update update) {
         try {
-            collectionClientApi.copy(collectionId, userDto.getId());
+            collectionClient.copy(collectionId, userDto.getId());
         } catch (FeignException e) {
             return botService.getExceptionMessage(update);
         }
@@ -96,13 +96,13 @@ public class CollectionInfraServiceImpl implements CollectionInfraService {
 
     @Override
     public List<BotApiMethod> deleteCollection(UserDto userDto, Long collectionId, Update update) {
-        collectionClientApi.deleteLinkUserToCollection(collectionId, userDto.getId());
+        collectionClient.deleteLinkUserToCollection(collectionId, userDto.getId());
         return getAllCollection(userDto, update);
     }
 
     @Override
     public List<BotApiMethod> getCollectionByPage(UserDto userDto, PageCD pageCD, Update update) {
-        RestPageImpl<CollectionCondensedDto> collections = collectionClientApi.getCollectionByUserId(
+        RestPageImpl<CollectionCondensedDto> collections = collectionClient.getCollectionByUserId(
                 userDto.getId(),
                 PageRequest.of(pageCD.getPage(), 10, Sort.by("id"))
         );

@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import ru.maza.telegram.domain.service.CallbackService;
 import ru.maza.telegram.domain.service.TelegramService;
 import ru.maza.telegram.domain.service.TrialService;
+import ru.maza.telegram.dto.Constant;
 import ru.maza.telegram.dto.Page;
 import ru.maza.telegram.dto.TranslateOptionDto;
 import ru.maza.telegram.dto.TranslationDto;
@@ -126,7 +127,7 @@ public class TrialServiceImpl implements TrialService {
                 translateOptionDto.getTrialCondensedDto().getId(),
                 1
         ));
-        collect.add(new CancelButton(getMessage("button.cancel.back"), "/my_collection", 1));
+        collect.add(new CancelButton(getMessage("button.cancel.back"), Constant.MY_COLLECTION, 1));
 
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(collect);
         editMessageText.setReplyMarkup(keyboardMarkup);
@@ -162,7 +163,7 @@ public class TrialServiceImpl implements TrialService {
         if (page.getPage() != 0) {
             cancelButtons.add(new PageButton("trial", page.getPage() - 1, true, LEFT, 2));
         }
-        cancelButtons.add(new CancelButton(getMessage("button.cancel.back"), "/my_collection", 2));
+        cancelButtons.add(new CancelButton(getMessage("button.cancel.back"), Constant.MY_COLLECTION, 2));
         if ((page.getPage() + 1) * 10 < page.getCount()) {
             cancelButtons.add(new PageButton("trial", page.getPage() + 1, false, NOT_LEFT, 2));
         }
@@ -228,7 +229,7 @@ public class TrialServiceImpl implements TrialService {
         buttons.add(ChooseStartTrialButton.from(id, null, getMessage("button.start.trial"), 1));
         buttons.add(new CancelButton(
                 getMessage("button.cancel"),
-                new CancelCD(CancelCD.class.getSimpleName(), "/my_collection"),
+                new CancelCD(CancelCD.class.getSimpleName(), Constant.MY_COLLECTION),
                 1
         ));
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);

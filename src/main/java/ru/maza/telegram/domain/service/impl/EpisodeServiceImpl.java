@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import ru.maza.telegram.domain.service.EpisodeService;
 import ru.maza.telegram.domain.service.TelegramService;
 import ru.maza.telegram.dto.CollectionDto;
+import ru.maza.telegram.dto.Constant;
 import ru.maza.telegram.dto.EpisodeDto;
 import ru.maza.telegram.dto.Page;
 import ru.maza.telegram.dto.TrialDto;
@@ -84,7 +85,7 @@ public class EpisodeServiceImpl implements EpisodeService {
                                            )
                                       )
                                       .collect(Collectors.toList());
-        buttons.add(new CancelButton(getMessage("button.cancel.back"), "/my_collection", 1));
+        buttons.add(new CancelButton(getMessage("button.cancel.back"), Constant.MY_COLLECTION, 1));
         if (!collectionDto.isShared()) {
             buttons.add(new AddPersonalCollectionsButton(
                     collectionDto.getId(),
@@ -126,7 +127,7 @@ public class EpisodeServiceImpl implements EpisodeService {
         }
         buttons.add(new CancelButton(
                 getMessage("button.cancel.back"),
-                new CancelCD(CancelCD.class.getSimpleName(), "/my_collection"),
+                new CancelCD(CancelCD.class.getSimpleName(), Constant.MY_COLLECTION),
                 2
         ));
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);
@@ -170,7 +171,7 @@ public class EpisodeServiceImpl implements EpisodeService {
                     2
             ));
         }
-        collect.add(new CancelButton(getMessage("button.cancel.back"), "/my_collection", 2));
+        collect.add(new CancelButton(getMessage("button.cancel.back"), Constant.MY_COLLECTION, 2));
         if ((page.getPage() + 1) * 10 < page.getCount()) {
             collect.add(new PageSerialButton(
                     episode.getSeason(),
@@ -215,7 +216,7 @@ public class EpisodeServiceImpl implements EpisodeService {
         }
         buttons.add(new CancelButton(
                 getMessage("button.cancel.back"),
-                new CancelCD(CancelCD.class.getSimpleName(), "/my_collection"),
+                new CancelCD(CancelCD.class.getSimpleName(), Constant.MY_COLLECTION),
                 2
         ));
         if (!episodeDto.getCollectionDto().isShared()) {
