@@ -7,9 +7,9 @@ import org.telegram.telegrambots.meta.api.methods.AnswerInlineQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQueryResult;
-import ru.maza.telegram.client.CollectionClientApi;
 import ru.maza.telegram.client.TranslatorClientApi;
 import ru.maza.telegram.client.WordClientApi;
+import ru.maza.telegram.client.impl.CollectionClient;
 import ru.maza.telegram.domain.service.CallbackService;
 import ru.maza.telegram.domain.service.TelegramService;
 import ru.maza.telegram.dto.CollectionCondensedDto;
@@ -31,7 +31,7 @@ public class CallbackInfraServiceImpl implements CallbackInfraService {
     private final TelegramService telegramService;
     private final TranslatorClientApi translatorClientApi;
     private final WordClientApi wordClientApi;
-    private final CollectionClientApi collectionClientApi;
+    private final CollectionClient collectionClient;
 
     @Override
     public CallbackData getCallbackData(String data) {
@@ -56,7 +56,7 @@ public class CallbackInfraServiceImpl implements CallbackInfraService {
     public List<BotApiMethod> searchCollection(Update update) {
         String queryText = update.getInlineQuery().getQuery();
         AnswerInlineQuery answerInlineQuery = telegramService.getAnswerInlineQuery(update);
-        List<CollectionCondensedDto> collections = collectionClientApi.search(queryText, PageRequest.of(0, 10));
+        List<CollectionCondensedDto> collections = collectionClient.search(queryText, PageRequest.of(0, 10));
         List<InlineQueryResult> results = collections
                 .stream()
                 .map(telegramService::fillInlineQueryResultPhoto)

@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.maza.telegram.domain.service.TelegramService;
+import ru.maza.telegram.dto.Constant;
 import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.callbackData.AddCollectionCD;
 import ru.maza.telegram.dto.callbackData.AddFileCD;
@@ -63,10 +64,6 @@ import java.util.List;
 @Component
 public class BotController extends TelegramLongPollingBot {
 
-    private static final String NEW_COLLECTION = "/new_sub";
-    private static final String EDIT_COLLECTION = "/edit_sub";
-    private static final String ADD_FILE = "/add_file";
-
     private final TelegramService telegramService;
     private final DocumentInfraService documentInfraService;
     private final TextInfraService textInfraService;
@@ -106,19 +103,19 @@ public class BotController extends TelegramLongPollingBot {
             commandInfraService.remove(userDto.getId());
             if (command != null) {
                 switch (command.getTextCommands()) {
-                    case (NEW_COLLECTION):
+                    case (Constant.NEW_COLLECTION):
                         send(collectionInfraService.createCollection(userDto, update));
                         break;
-                    case (EDIT_COLLECTION):
+                    case (Constant.EDIT_COLLECTION):
                         send(collectionInfraService.createCollection(userDto, update));
                         break;
-                    case (ADD_FILE):
+                    case (Constant.ADD_FILE):
                         send(saveFile(update, command.getCommandId()));
                         break;
-                    case ("/add_season"):
+                    case (Constant.ADD_SEASON):
                         send(episodeInfraService.addSeason(command.getCommandId(), userDto, update));
                         break;
-                    case ("/add_serial"):
+                    case (Constant.ADD_SERIAL):
                         send(episodeInfraService.addSeries(command.getCommandId(), userDto, update));
                         break;
                 }
@@ -167,7 +164,7 @@ public class BotController extends TelegramLongPollingBot {
                 CancelCD cancelCD = (CancelCD)callbackData;
                 if ("/start".equals(cancelCD.getCommand())) {
                     send(botInfraService.getStartWindow(update, true));
-                } else if ("/my_collection".equals(cancelCD.getCommand())) {
+                } else if (Constant.MY_COLLECTION.equals(cancelCD.getCommand())) {
                     send(collectionInfraService.getAllCollection(userDto, update));
                 }
             } else if (callbackData instanceof TranscriptionCD) {
@@ -184,12 +181,12 @@ public class BotController extends TelegramLongPollingBot {
             } else if (callbackData instanceof AddPersonalCollectionCD) {
                 AddPersonalCollectionCD addPersonalCollectionCD = (AddPersonalCollectionCD)callbackData;
                 if (addPersonalCollectionCD.getCtnId() == null && addPersonalCollectionCD.getEpdId() == null) {
-                    commandInfraService.save(new Command(userDto.getId(), NEW_COLLECTION, null));
+                    commandInfraService.save(new Command(userDto.getId(), Constant.NEW_COLLECTION, null));
                     send(collectionInfraService.wantCreatePersonalCollection(userDto, update));
                 } else if (addPersonalCollectionCD.getCtnId() != null && addPersonalCollectionCD.getEpdId() == null) {
                     send(episodeInfraService.createSerial(addPersonalCollectionCD.getCtnId(), update, userDto));
                 } else {
-                    commandInfraService.save(new Command(addPersonalCollectionCD.getCtnId(), "add_serial", null));
+                    commandInfraService.save(new Command(addPersonalCollectionCD.getCtnId(), Constant.ADD_SERIAL, null));
                     send(episodeInfraService.wantToCreateSeries(addPersonalCollectionCD.getEpdId(), userDto, update));
                 }
             } else if (callbackData instanceof AddCollectionCD) {

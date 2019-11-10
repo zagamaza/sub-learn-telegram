@@ -40,8 +40,8 @@ import java.util.stream.IntStream;
 @Service
 @RequiredArgsConstructor
 public class TelegramServiceImpl implements TelegramService {
-
     private static final String MARKDOWN = "Markdown";
+
 
     private final MessageSource messageSource;
     private final Parser<CallbackData> callbackDataParser;

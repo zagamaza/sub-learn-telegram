@@ -14,6 +14,7 @@ import ru.maza.telegram.domain.service.TelegramService;
 import ru.maza.telegram.dto.CollectionCondensedDto;
 import ru.maza.telegram.dto.CollectionDto;
 import ru.maza.telegram.dto.CollectionRequest;
+import ru.maza.telegram.dto.Constant;
 import ru.maza.telegram.dto.Lang;
 import ru.maza.telegram.dto.Page;
 import ru.maza.telegram.dto.UserDto;
@@ -65,7 +66,7 @@ public class CollectionServiceImpl implements CollectionService {
         List<Button> buttons = new ArrayList<>();
         buttons.add(new SearchCollectionButton(getMessage("button.search.collection"), 2));
         buttons.add(new AddPersonalCollectionsButton(null, null, getMessage("button.add.personal.collection"), 1));
-        buttons.add(new CancelButton(getMessage("button.cancel.back"), "/my_collection", 2));
+        buttons.add(new CancelButton(getMessage("button.cancel.back"), Constant.MY_COLLECTION, 2));
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);
         editMessageText.setReplyMarkup(keyboardMarkup);
         return Collections.singletonList(editMessageText);
