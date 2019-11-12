@@ -85,6 +85,7 @@ public class EpisodeServiceImpl implements EpisodeService {
                                            )
                                       )
                                       .collect(Collectors.toList());
+        buttons.add(new DeleteCollectionButton(collectionDto.getId(), getMessage("button.delete.collection"), 2));
         buttons.add(new CancelButton(getMessage("button.cancel.back"), Constant.MY_COLLECTION, 1));
         if (!collectionDto.isShared()) {
             buttons.add(new AddPersonalCollectionsButton(
@@ -121,8 +122,8 @@ public class EpisodeServiceImpl implements EpisodeService {
                     1
             ));
         }
+        buttons.add(new DeleteCollectionButton(collectionDto.getId(), getMessage("button.delete.collection"), 2));
         if (!episodeDto.getCollectionDto().isShared()) {
-            buttons.add(new DeleteCollectionButton(collectionDto.getId(), getMessage("button.delete.collection"), 2));
             buttons.add(new AddFileButton(episodeDto.getId(), "Добавить файл", 1));
         }
         buttons.add(new CancelButton(
