@@ -11,6 +11,8 @@ import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -31,6 +33,7 @@ import ru.maza.telegram.dto.callbackData.ChooseStartTrialCD;
 import ru.maza.telegram.dto.callbackData.ChooseTrialCD;
 import ru.maza.telegram.dto.callbackData.ChsSeriesCD;
 import ru.maza.telegram.dto.callbackData.DelCollectionCD;
+import ru.maza.telegram.dto.callbackData.DelEpisodeCD;
 import ru.maza.telegram.dto.callbackData.LearnedWordCD;
 import ru.maza.telegram.dto.callbackData.MyCollectionsCD;
 import ru.maza.telegram.dto.callbackData.MySettingsCD;
@@ -39,6 +42,7 @@ import ru.maza.telegram.dto.callbackData.PageCD;
 import ru.maza.telegram.dto.callbackData.PageSeriesCD;
 import ru.maza.telegram.dto.callbackData.ScheduleCD;
 import ru.maza.telegram.dto.callbackData.ShowAllTrCD;
+import ru.maza.telegram.dto.callbackData.SupportCD;
 import ru.maza.telegram.dto.callbackData.TranscriptionCD;
 import ru.maza.telegram.dto.callbackData.TranslateCountCD;
 import ru.maza.telegram.dto.callbackData.WordCountCD;
@@ -128,6 +132,9 @@ public class BotController extends TelegramLongPollingBot {
                 case ("/start"):
                     send(botInfraService.getStartWindow(update, false));
                     break;
+                case ("/help"):
+                    send(botInfraService.getInfoMessages(1, update));
+                    break;
             }
 
             /**Пересланное сообщение*/
@@ -186,7 +193,11 @@ public class BotController extends TelegramLongPollingBot {
                 } else if (addPersonalCollectionCD.getCtnId() != null && addPersonalCollectionCD.getEpdId() == null) {
                     send(episodeInfraService.createSerial(addPersonalCollectionCD.getCtnId(), update, userDto));
                 } else {
-                    commandInfraService.save(new Command(addPersonalCollectionCD.getCtnId(), Constant.ADD_SERIAL, null));
+                    commandInfraService.save(new Command(
+                            addPersonalCollectionCD.getCtnId(),
+                            Constant.ADD_SERIAL,
+                            null
+                    ));
                     send(episodeInfraService.wantToCreateSeries(addPersonalCollectionCD.getEpdId(), userDto, update));
                 }
             } else if (callbackData instanceof AddCollectionCD) {
@@ -216,6 +227,9 @@ public class BotController extends TelegramLongPollingBot {
             } else if (callbackData instanceof DelCollectionCD) {
                 DelCollectionCD delCollectionCD = (DelCollectionCD)callbackData;
                 send(collectionInfraService.deleteCollection(userDto, delCollectionCD.getCollectionId(), update));
+            }else if (callbackData instanceof DelEpisodeCD) {
+                DelEpisodeCD delEpisodeCD = (DelEpisodeCD)callbackData;
+                send(episodeInfraService.deleteEpisode(userDto, delEpisodeCD.getEpisodeId(), update));
             } else if (callbackData instanceof PageCD) {
                 PageCD pageCD = (PageCD)callbackData;
                 if (pageCD.getEntity().equals("collection")) {
@@ -245,6 +259,11 @@ public class BotController extends TelegramLongPollingBot {
             } else if (callbackData instanceof AddFileCD) {
                 AddFileCD addFileCD = (AddFileCD)callbackData;
                 send(episodeInfraService.addFile(addFileCD.getEpisodeId(), userDto, update));
+            } else if (callbackData instanceof SupportCD) {
+                SupportCD supportCD = (SupportCD)callbackData;
+                SendPhoto sendPhoto = botInfraService.getInfoMessages(supportCD.getSupportId(), update);
+                send(new DeleteMessage(telegramService.getChatId(update),telegramService.getMessage(update).getMessageId()));
+                send(sendPhoto);
             }
 
 
@@ -281,6 +300,14 @@ public class BotController extends TelegramLongPollingBot {
     }
 
     private void send(BotApiMethod apiMethod) {
+        try {
+            execute(apiMethod);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void send(SendPhoto apiMethod) {
         try {
             execute(apiMethod);
         } catch (TelegramApiException e) {

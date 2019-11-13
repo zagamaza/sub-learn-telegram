@@ -179,6 +179,13 @@ public class EpisodeInfraServiceImpl implements EpisodeInfraService {
         return episodeService.getMessageForGetFile(update);
     }
 
+    @Override
+    public List<BotApiMethod> deleteEpisode(UserDto userDto, Long episodeId, Update update) {
+        EpisodeDto episodeDto = episodeClient.get(episodeId);
+        episodeClient.delete(episodeId);
+        return chooseSerial(episodeDto.getCollectionDto(), userDto, update);
+    }
+
     private void deleteTempEpisode(EpisodeDto episodeDto) {
         if (episodeDto.getEpisode() == 0) {
             episodeClient.delete(episodeDto.getId());

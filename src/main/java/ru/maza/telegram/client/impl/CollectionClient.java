@@ -26,10 +26,6 @@ public class CollectionClient {
         return collectionClientApi.get(id);
     }
 
-    @Caching(cacheable = {
-            @Cacheable("collections"),
-            @Cacheable(value = "user", key = "#userId")
-    })
     public RestPageImpl<CollectionCondensedDto> getCollectionByUserId(Long userId, Pageable pageable) {
         return collectionClientApi.getCollectionByUserId(userId, pageable);
     }
@@ -46,19 +42,11 @@ public class CollectionClient {
         return collectionClientApi.updateIsSerial(id, isSerial);
     }
 
-    @Caching(evict = {
-            @CacheEvict("collections"),
-            @CacheEvict(value = "user", key = "#collectionRequest.userId")
-    },
-             put = @CachePut(value = "episodes", key = "#collectionRequest.id"))
+     @CachePut(value = "collections", key = "#collectionRequest.id")
     public CollectionDto update(CollectionRequest collectionRequest) {
         return collectionClientApi.update(collectionRequest);
     }
 
-    @Caching(evict = {
-            @CacheEvict("collections"),
-            @CacheEvict(value = "user", key = "#collectionRequest.userId")
-    })
     public CollectionDto create(CollectionRequest collectionRequest) {
         return collectionClientApi.create(collectionRequest);
     }
@@ -68,10 +56,7 @@ public class CollectionClient {
         collectionClientApi.delete(id);
     }
 
-    @Caching(evict = {
-            @CacheEvict("collections"),
-            @CacheEvict(value = "user", key = "#userId")
-    })
+    @CacheEvict(value = "collections", key = "#id")
     public void deleteLinkUserToCollection(Long id, Long userId) {
         collectionClientApi.deleteLinkUserToCollection(id, userId);
     }

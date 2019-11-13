@@ -1,12 +1,16 @@
 package ru.maza.telegram.domain.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.maza.telegram.domain.service.BotService;
 import ru.maza.telegram.domain.service.TelegramService;
 import ru.maza.telegram.dto.WordDto;
@@ -14,7 +18,9 @@ import ru.maza.telegram.dto.buttons.Button;
 import ru.maza.telegram.dto.buttons.MyCollectionsButton;
 import ru.maza.telegram.dto.buttons.MySettingsButton;
 import ru.maza.telegram.dto.buttons.MyTrialsButton;
+import ru.maza.telegram.dto.buttons.SupportButton;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -75,6 +81,29 @@ public class BotServiceImpl implements BotService {
         String errorText = getMessage("exception.message");
         BotApiMethod botApiMethod = telegramService.addAnswerCallbackQuery(update.getCallbackQuery(), true, errorText);
         return Collections.singletonList(botApiMethod);
+    }
+
+    @Override
+    @SneakyThrows
+    public SendPhoto getMessageSupport(Integer supportId, String support, Update update) {
+        SendPhoto sendPhoto = new SendPhoto();
+        sendPhoto.setChatId(telegramService.getChatId(update));
+        sendPhoto.setParseMode("Markdown");
+        File file = ResourceUtils.getFile("classpath:support/" + support + ".jpg");
+        sendPhoto.setCaption(getMessage("support." + support + ".screen"));
+        sendPhoto.setPhoto(file);
+        List<Button> buttons = new ArrayList<>();
+        if (supportId != 1) {
+            buttons.add(new SupportButton(supportId - 1, getMessage("button.support.back"), 2));
+        }
+        if (supportId != 14) {
+            buttons.add(new SupportButton(supportId + 1, getMessage("button.support.next"), 2));
+        }
+        InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);
+
+        sendPhoto.setReplyMarkup(keyboardMarkup);
+        return sendPhoto;
+
     }
 
     private String getMessage(String key, Object... args) {
