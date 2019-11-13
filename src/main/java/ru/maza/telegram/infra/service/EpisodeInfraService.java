@@ -38,4 +38,6 @@ public interface EpisodeInfraService {
 
     List<BotApiMethod> addFile(Long episodeId, UserDto userDto, Update update);
 
+    List<BotApiMethod> deleteEpisode(UserDto userDto, Long episodeId, Update update);
+
 }

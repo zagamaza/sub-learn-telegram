@@ -24,6 +24,7 @@ import ru.maza.telegram.dto.buttons.ChooseSeasonButton;
 import ru.maza.telegram.dto.buttons.ChooseSeriesButton;
 import ru.maza.telegram.dto.buttons.ChooseStartTrialButton;
 import ru.maza.telegram.dto.buttons.DeleteCollectionButton;
+import ru.maza.telegram.dto.buttons.DeleteEpisodeButton;
 import ru.maza.telegram.dto.buttons.PageSerialButton;
 import ru.maza.telegram.dto.callbackData.CancelCD;
 import ru.maza.telegram.utils.EmojiUtils;
@@ -221,6 +222,7 @@ public class EpisodeServiceImpl implements EpisodeService {
                 2
         ));
         if (!episodeDto.getCollectionDto().isShared()) {
+            buttons.add(new DeleteEpisodeButton(episodeDto.getId(), getMessage("button.delete.collection"), 2));
             buttons.add(new AddFileButton(episodeDto.getId(), "Добавить файл", 1));
         }
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);

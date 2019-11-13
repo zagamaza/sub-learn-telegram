@@ -33,6 +33,7 @@ import ru.maza.telegram.dto.callbackData.ChooseStartTrialCD;
 import ru.maza.telegram.dto.callbackData.ChooseTrialCD;
 import ru.maza.telegram.dto.callbackData.ChsSeriesCD;
 import ru.maza.telegram.dto.callbackData.DelCollectionCD;
+import ru.maza.telegram.dto.callbackData.DelEpisodeCD;
 import ru.maza.telegram.dto.callbackData.LearnedWordCD;
 import ru.maza.telegram.dto.callbackData.MyCollectionsCD;
 import ru.maza.telegram.dto.callbackData.MySettingsCD;
@@ -226,6 +227,9 @@ public class BotController extends TelegramLongPollingBot {
             } else if (callbackData instanceof DelCollectionCD) {
                 DelCollectionCD delCollectionCD = (DelCollectionCD)callbackData;
                 send(collectionInfraService.deleteCollection(userDto, delCollectionCD.getCollectionId(), update));
+            }else if (callbackData instanceof DelEpisodeCD) {
+                DelEpisodeCD delEpisodeCD = (DelEpisodeCD)callbackData;
+                send(episodeInfraService.deleteEpisode(userDto, delEpisodeCD.getEpisodeId(), update));
             } else if (callbackData instanceof PageCD) {
                 PageCD pageCD = (PageCD)callbackData;
                 if (pageCD.getEntity().equals("collection")) {
