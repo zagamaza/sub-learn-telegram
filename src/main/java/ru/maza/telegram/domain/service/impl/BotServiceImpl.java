@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
@@ -20,7 +19,7 @@ import ru.maza.telegram.dto.buttons.MySettingsButton;
 import ru.maza.telegram.dto.buttons.MyTrialsButton;
 import ru.maza.telegram.dto.buttons.SupportButton;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -89,9 +88,9 @@ public class BotServiceImpl implements BotService {
         SendPhoto sendPhoto = new SendPhoto();
         sendPhoto.setChatId(telegramService.getChatId(update));
         sendPhoto.setParseMode("Markdown");
-        File file = ResourceUtils.getFile("classpath:support/" + support + ".jpg");
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("/support/" + support + ".jpg");
         sendPhoto.setCaption(getMessage("support." + support + ".screen"));
-        sendPhoto.setPhoto(file);
+        sendPhoto.setPhoto("photo", resourceAsStream);
         List<Button> buttons = new ArrayList<>();
         if (supportId != 1) {
             buttons.add(new SupportButton(supportId - 1, getMessage("button.support.back"), 2));
