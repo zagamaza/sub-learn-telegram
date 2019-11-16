@@ -16,16 +16,24 @@ public interface TrialService {
 
     BotApiMethod checkTranslation(CTlteCD chooseTranslateCD, Update update);
 
-    List<BotApiMethod> fillMessageTranslateOption(TranslateOptionDto translateOptionDto, Update update);
+    List<BotApiMethod> fillMessageTranslateOption(
+            List<Boolean> trialWordStatus,
+            TranslateOptionDto translateOptionDto,
+            Update update
+    );
 
-    List<BotApiMethod> finishTrial(TrialDto trialDto, Update update);
+    List<BotApiMethod> finishTrial(List<Boolean> trialWordStatus, TrialDto trialDto, Update update);
 
     List<BotApiMethod> fillMessageWithAllTrial(Page page, List<TrialCondensedDto> lastConsedTrial, Update update);
 
-    List<BotApiMethod> fillAlertStatisticByTrial(TrialDto trialDto, Update update);
+    List<BotApiMethod> fillAlertStatisticByTrial(
+            List<Boolean> trialWordStatus,
+            TrialDto trialDto,
+            Update update
+    );
 
     BotApiMethod getAlertWithAllTranslate(WordDto word, Update update);
 
-    List<BotApiMethod> fillMessageRepeatTrial(Long id, UserDto userDto, Update update);
+    List<BotApiMethod> fillMessageRepeatTrial(Integer learnedPercent, Long id, UserDto userDto, Update update);
 
 }

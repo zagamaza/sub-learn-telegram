@@ -1,13 +1,9 @@
 version: '3.4'
 
 services:
-  service-db:
-    container_name: telegram-db
-    image: postgres:11
+  redis:
+    container_name: redis
+    image: redis
     restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Zaq12wsx
-      POSTGRES_DB: telegramdb
     ports:
-      - 15433:5432
+      - 6379:6379

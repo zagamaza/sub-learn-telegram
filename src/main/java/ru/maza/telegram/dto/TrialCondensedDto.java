@@ -14,8 +14,6 @@ public class TrialCondensedDto {
     private Long id;
     private Long collectionId;
     private String collectionName;
-    private Integer percent;
-    private Integer correctPercent;
     private LocalDateTime created;
 
 }
