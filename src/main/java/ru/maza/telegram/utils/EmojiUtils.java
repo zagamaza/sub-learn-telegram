@@ -1,9 +1,14 @@
 package ru.maza.telegram.utils;
 
+import com.vdurmont.emoji.EmojiManager;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class EmojiUtils {
+
+    public static final String NOT = EmojiManager.getForAlias("x").getUnicode();
+    public static final String OK = EmojiManager.getForAlias("white_check_mark").getUnicode();
+    public static final String RIGHT = EmojiManager.getForAlias("ballot_box_with_check").getUnicode();
 
     public String extractEmojiPercent(Integer percent) {
         if (percent == null) {

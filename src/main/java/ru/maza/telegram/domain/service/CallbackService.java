@@ -11,12 +11,8 @@ import java.util.List;
 
 public interface CallbackService {
 
-    List<BotApiMethod> fillMessageTranslateOption(TranslateOptionDto translateOptionDto, Update update);
-
     CallbackData getCallbackData(String data);
 
     List<BotApiMethod> fillAnswerAlertForWord(WordDto wordDto, Update update);
-
-    List<BotApiMethod> getStatisticByTrial(TrialDto trialDto, Update update);
 
 }

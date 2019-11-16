@@ -22,10 +22,6 @@ public class TrialDto {
 
     private UserDto userDto;
 
-    private Integer percent;
-
-    private Integer correctPercent;
-
     private LocalDateTime created;
 
 }

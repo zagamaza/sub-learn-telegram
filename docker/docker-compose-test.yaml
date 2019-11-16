@@ -2,25 +2,20 @@ version: '3.4'
 
 services:
   sub-learn-telegram:
-    image: sub-learn-telegram
+    image: almazic91/sub-learn-telegram
     depends_on:
-      - ms-telegram-db
+      - redis
     ports:
       - 8080:8080
     environment:
-        SPRING_DATASOURCE_URL: jdbc:postgresql://ms-telegram-db:5432/mstelegramdb
         SPRING_PROFILES_ACTIVE: default
         SERVER_PORT: 8080
-        tg.token:
-        tg.username:
+        TG_TOKEN:
+        TG_USERNAME:
 
-  ms-telegram-db:
-    container_name: ms-telegram-db
-    image: postgres:11
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: passw0rd
-      POSTGRES_DB: mstelegramdb
-    ports:
-      - 15432:5432
+    redis:
+      container_name: redis
+      image: redis
+      restart: always
+      ports:
+        - 6379:6379
