@@ -29,7 +29,9 @@ public class UserRequest {
         return new UserRequest(
                 null,
                 user.getId().longValue(),
-                user.getUserName(),
+                user.getUserName() != null
+                        ? user.getUserName()
+                        : user.getFirstName() + "_" + user.getLastName(),
                 null,
                 LocalDateTime.now()
         );
