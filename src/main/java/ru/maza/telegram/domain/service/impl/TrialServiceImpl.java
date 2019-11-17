@@ -1,5 +1,6 @@
 package ru.maza.telegram.domain.service.impl;
 
+import com.google.common.collect.Lists;
 import com.vdurmont.emoji.EmojiManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -85,15 +86,20 @@ public class TrialServiceImpl implements TrialService {
     }
 
     @Override
-    public List<BotApiMethod> fillMessageTranslateOption(TranslateOptionDto translateOptionDto, Update update) {
+    public List<BotApiMethod> fillMessageTranslateOption(
+            List<Boolean> trialWordStatus,
+            TranslateOptionDto translateOptionDto,
+            Update update
+    ) {
         EditMessageText editMessageText = telegramService.getEditMessage(update);
         WordDto translatableWord = translateOptionDto.getTranslatable();
+
+        String text = getCheckTrialStatus(trialWordStatus);
 
         editMessageText.setText(getMessage(
                 "translate.option.message",
                 translateOptionDto.getTrialCondensedDto().getCollectionName(),
-                EmojiUtils.extractEmojiPercent(translateOptionDto.getPresent()),
-                EmojiUtils.extractEmojiPercent(translateOptionDto.getCorrectPercent()),
+                text,
                 translateOptionDto.getTranslatable().getWord().toUpperCase()
         ));
 
@@ -134,10 +140,34 @@ public class TrialServiceImpl implements TrialService {
         return List.of(editMessageText);
     }
 
+    private String getCheckTrialStatus(List<Boolean> trialWordStatus) {
+        StringBuilder trialStatus = new StringBuilder();
+        List<List<Boolean>> partition = Lists.partition(trialWordStatus, 10);
+        for (List<Boolean> booleans : partition) {
+            booleans.forEach(t -> {
+                if (Boolean.FALSE.equals(t)) {
+                    trialStatus.append(EmojiUtils.NOT);
+                } else if (Boolean.TRUE.equals(t)) {
+                    trialStatus.append(EmojiUtils.OK);
+                } else {
+                    trialStatus.append(EmojiUtils.RIGHT);
+                }
+            });
+            trialStatus.append("\n");
+        }
+        return String.valueOf(trialStatus);
+    }
+
 
     @Override
-    public List<BotApiMethod> finishTrial(TrialDto trialDto, Update update) {
-        String finishTrial = getMessage("success.trial.message", TADA, trialDto.getCorrectPercent());
+    public List<BotApiMethod> finishTrial(
+            List<Boolean> trialWordStatus,
+            TrialDto trialDto,
+            Update update
+    ) {
+        int size = trialWordStatus.size();
+        long trueCount = trialWordStatus.stream().filter(t -> t).count();
+        String finishTrial = getMessage("success.trial.message", TADA, trueCount * 100 / size);
         return List.of(
                 telegramService.addAnswerCallbackQuery(update.getCallbackQuery(), true, finishTrial)
         );
@@ -173,13 +203,15 @@ public class TrialServiceImpl implements TrialService {
     }
 
     @Override
-    public List<BotApiMethod> fillAlertStatisticByTrial(TrialDto trialDto, Update update) {
-        String message = getMessage(
-                "trial.one.result",
-                trialDto.getName(),
-                EmojiUtils.extractEmojiPercent(trialDto.getPercent()),
-                EmojiUtils.extractEmojiPercent(trialDto.getCorrectPercent())
-        );
+    public List<BotApiMethod> fillAlertStatisticByTrial(
+            List<Boolean> trialWordStatus,
+            TrialDto trialDto,
+            Update update
+    ) {
+
+        String text = getCheckTrialStatus(trialWordStatus);
+
+        String message = getMessage("trial.one.result", trialDto.getEpisodeDto().getCollectionDto().getName(), text);
         EditMessageText editMessageText = telegramService.getEditMessage(update);
         List<Button> buttons = List.of(
                 ChooseStartTrialButton.from(
@@ -223,7 +255,12 @@ public class TrialServiceImpl implements TrialService {
     }
 
     @Override
-    public List<BotApiMethod> fillMessageRepeatTrial(Long id, UserDto userDto, Update update) {
+    public List<BotApiMethod> fillMessageRepeatTrial(
+            Integer learnedPercent,
+            Long id,
+            UserDto userDto,
+            Update update
+    ) {
         EditMessageText editMessage = telegramService.getEditMessage(update);
         List<Button> buttons = new ArrayList<>();
         buttons.add(ChooseStartTrialButton.from(id, null, getMessage("button.start.trial"), 1));
@@ -234,7 +271,7 @@ public class TrialServiceImpl implements TrialService {
         ));
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);
         editMessage.setReplyMarkup(keyboardMarkup);
-        editMessage.setText(getMessage("trial.is.repeat"));
+        editMessage.setText(getMessage("trial.is.repeat", EmojiUtils.extractEmojiPercent(learnedPercent)));
         return Collections.singletonList(editMessage);
 
     }

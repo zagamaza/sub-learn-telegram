@@ -39,6 +39,9 @@ public interface TrialClientApi {
     @GetMapping("/trials/nextWord")
     TranslateOptionDto getTranslateOptionDto(@RequestParam("trialId") Long trialId);
 
+    @GetMapping("/trials/{trialId}/word_status")
+    List<Boolean> getTrialWordStatusByTrialId(@PathVariable("trialId") Long trialId);
+
     @PostMapping("/trials/trial_word")
     TrialDto saveTrialAnd20TrialWord(@RequestBody TrialRequest trialRequest);
 

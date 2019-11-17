@@ -9,9 +9,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.maza.telegram.client.TrialClientApi;
 import ru.maza.telegram.client.TrialWordClientApi;
 import ru.maza.telegram.client.WordClientApi;
+import ru.maza.telegram.client.impl.EpisodeClient;
+import ru.maza.telegram.client.model.RestPageImpl;
 import ru.maza.telegram.domain.service.TrialService;
 import ru.maza.telegram.dto.Page;
-import ru.maza.telegram.client.model.RestPageImpl;
 import ru.maza.telegram.dto.TranslateOptionDto;
 import ru.maza.telegram.dto.TrialCondensedDto;
 import ru.maza.telegram.dto.TrialDto;
@@ -33,6 +34,7 @@ public class TrialInfraServiceImpl implements TrialInfraService {
     private final TrialClientApi trialClientApi;
     private final TrialWordClientApi trialWordClientApi;
     private final WordClientApi wordClientApi;
+    private final EpisodeClient episodeClient;
     private final TrialService trialService;
 
     @Override
@@ -40,7 +42,8 @@ public class TrialInfraServiceImpl implements TrialInfraService {
         TrialRequest trialRequestDto = TrialRequest.get(episodeId, userDto.getId());
         TrialDto trial = trialClientApi.saveTrialAnd20TrialWord(trialRequestDto);
         TranslateOptionDto translateOptionDto = trialClientApi.getTranslateOptionDto(trial.getId());
-        return trialService.fillMessageTranslateOption(translateOptionDto, update);
+        List<Boolean> trialWordStatus = trialClientApi.getTrialWordStatusByTrialId(trial.getId());
+        return trialService.fillMessageTranslateOption(trialWordStatus, translateOptionDto, update);
     }
 
     @Override
@@ -48,8 +51,10 @@ public class TrialInfraServiceImpl implements TrialInfraService {
         TrialWordDto trialWordDto = trialWordClientApi.updateTrialWordAndSaveUserWord(TrialWordRequest.from(
                 chooseTranslateCD));
         if (trialWordDto.isLastWord()) {
-            TrialDto trialDto = trialClientApi.get(trialWordDto.getTrialDto().getId());
-            return trialService.finishTrial(trialDto, update);
+            Long trialId = trialWordDto.getTrialDto().getId();
+            TrialDto trialDto = trialClientApi.get(trialId);
+            List<Boolean> trialWordStatus = trialClientApi.getTrialWordStatusByTrialId(trialId);
+            return trialService.finishTrial(trialWordStatus, trialDto, update);
         }
         return List.of(trialService.checkTranslation(chooseTranslateCD, update));
     }
@@ -57,7 +62,8 @@ public class TrialInfraServiceImpl implements TrialInfraService {
     @Override
     public List<BotApiMethod> getNextWord(Long trialId, Update update) {
         TranslateOptionDto translateOptionDto = trialClientApi.getTranslateOptionDto(trialId);
-        return trialService.fillMessageTranslateOption(translateOptionDto, update);
+        List<Boolean> trialWordStatus = trialClientApi.getTrialWordStatusByTrialId(trialId);
+        return trialService.fillMessageTranslateOption(trialWordStatus, translateOptionDto, update);
     }
 
     @Override
@@ -74,7 +80,8 @@ public class TrialInfraServiceImpl implements TrialInfraService {
     @Override
     public List<BotApiMethod> chooseTrial(ChooseTrialCD chooseTrialCD, Update update) {
         TrialDto trialDto = trialClientApi.get(chooseTrialCD.getTrialId());
-        return trialService.fillAlertStatisticByTrial(trialDto, update);
+        List<Boolean> trialWordStatus = trialClientApi.getTrialWordStatusByTrialId(chooseTrialCD.getTrialId());
+        return trialService.fillAlertStatisticByTrial(trialWordStatus, trialDto, update);
     }
 
     @Override
@@ -96,7 +103,8 @@ public class TrialInfraServiceImpl implements TrialInfraService {
     @Override
     public List<BotApiMethod> repeatTrial(Long tlId, UserDto userDto, Update update) {
         TrialDto trialDto = trialClientApi.get(tlId);
-        return trialService.fillMessageRepeatTrial(trialDto.getEpisodeDto().getId(), userDto, update);
+        Integer learnedPercent = episodeClient.getLearnedPercent(trialDto.getEpisodeDto().getId(), userDto.getId());
+        return trialService.fillMessageRepeatTrial(learnedPercent, trialDto.getEpisodeDto().getId(), userDto, update);
     }
 
     @Override
@@ -104,7 +112,8 @@ public class TrialInfraServiceImpl implements TrialInfraService {
         TrialWordDto trialWordDto = trialWordClientApi.updateTrialWordAndSaveLearnedUserWord(trialWordId);
         if (trialWordDto.isLastWord()) {
             TrialDto trialDto = trialClientApi.get(trialWordDto.getTrialDto().getId());
-            return trialService.finishTrial(trialDto, update);
+            List<Boolean> trialWordStatus = trialClientApi.getTrialWordStatusByTrialId(trialDto.getId());
+            return trialService.finishTrial(trialWordStatus, trialDto, update);
         }
         return getNextWord(trialWordDto.getTrialDto().getId(), update);
     }
