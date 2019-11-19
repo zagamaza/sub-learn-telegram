@@ -11,11 +11,13 @@ public class LearnedWordCD extends CallbackData {
 
     private Long twId;
     private Long tlId;
+    private Long wdId;
 
-    public LearnedWordCD(Long twId, Long tlId) {
+    public LearnedWordCD(Long twId, Long tlId, Long wdId) {
         super(LearnedWordCD.class.getSimpleName());
         this.twId = twId;
         this.tlId = tlId;
+        this.wdId = wdId;
     }
 
     public LearnedWordCD() {

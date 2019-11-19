@@ -21,7 +21,7 @@ public interface TrialInfraService {
 
     List<BotApiMethod> chooseTrial(ChooseTrialCD chooseTrialCD, Update update);
 
-    BotApiMethod getAlertWithAllTranslates(CTlteCD chooseTranslateCD, Update update);
+    BotApiMethod getAlertWithAllTranslates(Long wordId, Update update);
 
     List<BotApiMethod> getTrialsByPage(UserDto userDto, PageCD pageCD, Update update);
 

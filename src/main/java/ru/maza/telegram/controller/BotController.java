@@ -163,10 +163,11 @@ public class BotController extends TelegramLongPollingBot {
                 }
                 if (!chooseTranslateCD.getRw().equals(chooseTranslateCD.getWd()) ||
                         userDto.getUserSettingDto().isShowAllTranslate()) {
-                    send(trialInfraService.getAlertWithAllTranslates(chooseTranslateCD, update));
+                    send(trialInfraService.getAlertWithAllTranslates(chooseTranslateCD.getRw(), update));
                 }
+                List<BotApiMethod> nextWord = trialInfraService.getNextWord(chooseTranslateCD.getTl(), update);
                 Thread.sleep(500);
-                send(trialInfraService.getNextWord(chooseTranslateCD.getTl(), update));
+                send(nextWord);
             } else if (callbackData instanceof CancelCD) {
                 CancelCD cancelCD = (CancelCD)callbackData;
                 if ("/start".equals(cancelCD.getCommand())) {
@@ -227,7 +228,7 @@ public class BotController extends TelegramLongPollingBot {
             } else if (callbackData instanceof DelCollectionCD) {
                 DelCollectionCD delCollectionCD = (DelCollectionCD)callbackData;
                 send(collectionInfraService.deleteCollection(userDto, delCollectionCD.getCollectionId(), update));
-            }else if (callbackData instanceof DelEpisodeCD) {
+            } else if (callbackData instanceof DelEpisodeCD) {
                 DelEpisodeCD delEpisodeCD = (DelEpisodeCD)callbackData;
                 send(episodeInfraService.deleteEpisode(userDto, delEpisodeCD.getEpisodeId(), update));
             } else if (callbackData instanceof PageCD) {
@@ -239,6 +240,7 @@ public class BotController extends TelegramLongPollingBot {
                 }
             } else if (callbackData instanceof LearnedWordCD) {
                 LearnedWordCD learnedWordCD = (LearnedWordCD)callbackData;
+                send(trialInfraService.getAlertWithAllTranslates(learnedWordCD.getWdId(), update));
                 List<BotApiMethod> botApiMethods = trialInfraService.saveLearnedTrialWordAndGetNextWord(
                         learnedWordCD.getTwId(),
                         update
@@ -262,7 +264,8 @@ public class BotController extends TelegramLongPollingBot {
             } else if (callbackData instanceof SupportCD) {
                 SupportCD supportCD = (SupportCD)callbackData;
                 SendPhoto sendPhoto = botInfraService.getInfoMessages(supportCD.getSupportId(), update);
-                send(new DeleteMessage(telegramService.getChatId(update),telegramService.getMessage(update).getMessageId()));
+                send(new DeleteMessage(telegramService.getChatId(update),
+                                       telegramService.getMessage(update).getMessageId()));
                 send(sendPhoto);
             }
 

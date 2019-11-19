@@ -85,8 +85,8 @@ public class TrialInfraServiceImpl implements TrialInfraService {
     }
 
     @Override
-    public BotApiMethod getAlertWithAllTranslates(CTlteCD chooseTranslateCD, Update update) {
-        return trialService.getAlertWithAllTranslate(wordClientApi.getWord(chooseTranslateCD.getRw()), update);
+    public BotApiMethod getAlertWithAllTranslates(Long wordId, Update update) {
+        return trialService.getAlertWithAllTranslate(wordClientApi.getWord(wordId), update);
     }
 
     @Override

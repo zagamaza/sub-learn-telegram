@@ -100,7 +100,8 @@ public class TrialServiceImpl implements TrialService {
                 "translate.option.message",
                 translateOptionDto.getTrialCondensedDto().getCollectionName(),
                 text,
-                translateOptionDto.getTranslatable().getWord().toUpperCase()
+                translateOptionDto.getTranslatable().getWord().toUpperCase(),
+                translateOptionDto.getTranslatable().getTranscription()
         ));
 
         List<Button> collect = translateOptionDto
@@ -131,6 +132,7 @@ public class TrialServiceImpl implements TrialService {
                 getMessage("button.word.know"),
                 translateOptionDto.getTrialWordId(),
                 translateOptionDto.getTrialCondensedDto().getId(),
+                translateOptionDto.getTranslatable().getId(),
                 1
         ));
         collect.add(new CancelButton(getMessage("button.cancel.back"), Constant.MY_COLLECTION, 1));
