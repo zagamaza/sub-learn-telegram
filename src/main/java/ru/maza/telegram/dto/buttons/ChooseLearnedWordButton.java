@@ -9,16 +9,19 @@ public class ChooseLearnedWordButton extends Button {
 
     private Long trialWordId;
     private Long trialId;
+    private Long wordId;
 
     public ChooseLearnedWordButton(
             String name,
             Long trialWordId,
             Long trialId,
+            Long wordId,
             Integer countButtonInLine
     ) {
-        super(name, new LearnedWordCD(trialWordId, trialId), countButtonInLine);
+        super(name, new LearnedWordCD(trialWordId, trialId, wordId), countButtonInLine);
         this.trialWordId = trialWordId;
         this.trialId = trialId;
+        this.wordId = wordId;
     }
 
 }
