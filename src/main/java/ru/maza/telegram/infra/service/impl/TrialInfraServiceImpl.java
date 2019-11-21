@@ -1,5 +1,6 @@
 package ru.maza.telegram.infra.service.impl;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -47,21 +48,21 @@ public class TrialInfraServiceImpl implements TrialInfraService {
     }
 
     @Override
-    public List<BotApiMethod> saveResult(CTlteCD chooseTranslateCD, Update update) {
-        TrialWordDto trialWordDto = trialWordClientApi.updateTrialWordAndSaveUserWord(TrialWordRequest.from(
-                chooseTranslateCD));
-        if (trialWordDto.isLastWord()) {
-            Long trialId = trialWordDto.getTrialDto().getId();
-            TrialDto trialDto = trialClientApi.get(trialId);
-            List<Boolean> trialWordStatus = trialClientApi.getTrialWordStatusByTrialId(trialId);
-            return trialService.finishTrial(trialWordStatus, trialDto, update);
-        }
+    public List<BotApiMethod> saveAndCheckResult(CTlteCD chooseTranslateCD, Update update) {
+        trialWordClientApi.updateTrialWordAndSaveUserWord(TrialWordRequest.from(chooseTranslateCD));
         return List.of(trialService.checkTranslation(chooseTranslateCD, update));
     }
 
     @Override
     public List<BotApiMethod> getNextWord(Long trialId, Update update) {
-        TranslateOptionDto translateOptionDto = trialClientApi.getTranslateOptionDto(trialId);
+        TranslateOptionDto translateOptionDto;
+        try {
+            translateOptionDto = trialClientApi.getTranslateOptionDto(trialId);
+        } catch (FeignException e) {
+            TrialDto trialDto = trialClientApi.get(trialId);
+            List<Boolean> trialWordStatus = trialClientApi.getTrialWordStatusByTrialId(trialId);
+            return trialService.finishTrial(trialWordStatus, trialDto, update);
+        }
         List<Boolean> trialWordStatus = trialClientApi.getTrialWordStatusByTrialId(trialId);
         return trialService.fillMessageTranslateOption(trialWordStatus, translateOptionDto, update);
     }

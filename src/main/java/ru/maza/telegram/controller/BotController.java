@@ -156,17 +156,17 @@ public class BotController extends TelegramLongPollingBot {
                 send(collectionInfraService.chooseCollection(chooseCollection.getCltnId(), userDto, update));
             } else if (callbackData instanceof CTlteCD) {
                 CTlteCD chooseTranslateCD = (CTlteCD)callbackData;
-                List<BotApiMethod> botApiMethods = trialInfraService.saveResult(chooseTranslateCD, update);
-                send(botApiMethods);
-                if (botApiMethods.get(0) instanceof AnswerCallbackQuery) {
-                    send(trialInfraService.repeatTrial(chooseTranslateCD.getTl(), userDto, update));
-                }
+                send(trialInfraService.saveAndCheckResult(chooseTranslateCD, update));
                 if (!chooseTranslateCD.getRw().equals(chooseTranslateCD.getWd()) ||
                         userDto.getUserSettingDto().isShowAllTranslate()) {
+                    Thread.sleep(100);
                     send(trialInfraService.getAlertWithAllTranslates(chooseTranslateCD.getRw(), update));
                 }
                 List<BotApiMethod> nextWord = trialInfraService.getNextWord(chooseTranslateCD.getTl(), update);
                 Thread.sleep(500);
+                if (nextWord.get(0) instanceof AnswerCallbackQuery) {
+                    send(trialInfraService.repeatTrial(chooseTranslateCD.getTl(), userDto, update));
+                }
                 send(nextWord);
             } else if (callbackData instanceof CancelCD) {
                 CancelCD cancelCD = (CancelCD)callbackData;
