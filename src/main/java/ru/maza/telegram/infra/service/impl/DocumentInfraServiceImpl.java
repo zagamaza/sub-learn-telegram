@@ -13,11 +13,14 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.maza.telegram.domain.service.BotService;
 import ru.maza.telegram.dto.EpisodeDto;
+import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.infra.service.DocumentInfraService;
 import ru.maza.telegram.infra.service.EpisodeInfraService;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -25,6 +28,7 @@ import java.util.List;
 public class DocumentInfraServiceImpl implements DocumentInfraService {
 
     private final EpisodeInfraService episodeInfraService;
+    private final BotService botService;
 
     @Value("${sublearn.back.url}")
     private String sublearnBackUrl;
@@ -33,6 +37,14 @@ public class DocumentInfraServiceImpl implements DocumentInfraService {
     public List<BotApiMethod> addSubEpisode(File file, Long episodeId, Update update) {
         EpisodeDto episodeDto = uploadFileAndGetEpisode(file, episodeId);
         return episodeInfraService.afterSaveSub(episodeDto, update);
+    }
+
+    @Override
+    public List<BotApiMethod> checkDocument(UserDto userDto, Long commandId, Update update) {
+        if (!update.getMessage().hasDocument()){
+            return botService.getMessageDocumentNotExists(commandId, userDto, update);
+        }
+        return Collections.emptyList();
     }
 
     private EpisodeDto uploadFileAndGetEpisode(File file, Long episodeID) {
