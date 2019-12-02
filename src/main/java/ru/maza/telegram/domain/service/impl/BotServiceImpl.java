@@ -12,12 +12,16 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.maza.telegram.domain.service.BotService;
 import ru.maza.telegram.domain.service.TelegramService;
+import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.WordDto;
+import ru.maza.telegram.dto.buttons.AddFileButton;
 import ru.maza.telegram.dto.buttons.Button;
+import ru.maza.telegram.dto.buttons.CancelButton;
 import ru.maza.telegram.dto.buttons.MyCollectionsButton;
 import ru.maza.telegram.dto.buttons.MySettingsButton;
 import ru.maza.telegram.dto.buttons.MyTrialsButton;
 import ru.maza.telegram.dto.buttons.SupportButton;
+import ru.maza.telegram.dto.callbackData.CancelCD;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -103,6 +107,22 @@ public class BotServiceImpl implements BotService {
         sendPhoto.setReplyMarkup(keyboardMarkup);
         return sendPhoto;
 
+    }
+
+    @Override
+    public List<BotApiMethod> getMessageDocumentNotExists(Long commandId, UserDto userDto, Update update) {
+        SendMessage sendMessage = telegramService.getSendMessage(update);
+        sendMessage.setText(getMessage("validation.not.valid.document"));
+        List<Button> buttons = new ArrayList<>();
+        buttons.add(new AddFileButton(commandId, "Добавить файл", 1));
+        buttons.add(new CancelButton(
+                getMessage("button.cancel"),
+                new CancelCD(CancelCD.class.getSimpleName(), "/start"),
+                2
+        ));
+        InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);
+        sendMessage.setReplyMarkup(keyboardMarkup);
+        return Collections.singletonList(sendMessage);
     }
 
     private String getMessage(String key, Object... args) {

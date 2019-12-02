@@ -114,6 +114,7 @@ public class BotController extends TelegramLongPollingBot {
                         send(collectionInfraService.createCollection(userDto, update));
                         break;
                     case (Constant.ADD_FILE):
+                        send(documentInfraService.checkDocument(userDto, command.getCommandId(), update));
                         send(saveFile(update, command.getCommandId()));
                         break;
                     case (Constant.ADD_SEASON):
