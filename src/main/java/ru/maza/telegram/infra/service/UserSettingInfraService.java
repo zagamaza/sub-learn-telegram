@@ -20,4 +20,6 @@ public interface UserSettingInfraService {
 
     List<BotApiMethod> updateTranslateCount(UserDto userDto, TranslateCountCD translateCountCD, Update update);
 
+    List<BotApiMethod> updateLearnedWordCount(Integer count, UserDto userDto, Update update);
+
 }

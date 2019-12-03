@@ -35,6 +35,7 @@ import ru.maza.telegram.dto.callbackData.ChsSeriesCD;
 import ru.maza.telegram.dto.callbackData.DelCollectionCD;
 import ru.maza.telegram.dto.callbackData.DelEpisodeCD;
 import ru.maza.telegram.dto.callbackData.LearnedWordCD;
+import ru.maza.telegram.dto.callbackData.LearnedWordCountCD;
 import ru.maza.telegram.dto.callbackData.MyCollectionsCD;
 import ru.maza.telegram.dto.callbackData.MySettingsCD;
 import ru.maza.telegram.dto.callbackData.MyTrialsCD;
@@ -210,7 +211,10 @@ public class BotController extends TelegramLongPollingBot {
                 } else { send(trialInfraService.startTrial(userDto, update, chooseStartTrialCD.getEpisodeId())); }
             } else if (callbackData instanceof MyTrialsCD) {
                 send(trialInfraService.getAllTrials(userDto, update));
-            } else if (callbackData instanceof MySettingsCD) {
+            }
+
+            /**Страница настроек*/
+            else if (callbackData instanceof MySettingsCD) {
                 send(userSettingInfraService.getMySettings(userDto, update));
             } else if (callbackData instanceof TranslateCountCD) {
                 TranslateCountCD translateCountCD = (TranslateCountCD)callbackData;
@@ -222,7 +226,12 @@ public class BotController extends TelegramLongPollingBot {
                 send(userSettingInfraService.updateSchedule(userDto, update));
             } else if (callbackData instanceof ShowAllTrCD) {
                 send(userSettingInfraService.updateShowAllTranslate(userDto, update));
-            } else if (callbackData instanceof AddSearchCollectionCD) {
+            } else if (callbackData instanceof LearnedWordCountCD) {
+                LearnedWordCountCD learnedWordCountCD = (LearnedWordCountCD)callbackData;
+                send(userSettingInfraService.updateLearnedWordCount(learnedWordCountCD.getLearnedCount(), userDto, update));
+            }
+
+            else if (callbackData instanceof AddSearchCollectionCD) {
                 AddSearchCollectionCD searchCollectionCD = (AddSearchCollectionCD)callbackData;
                 send(collectionInfraService.addCollection(userDto, searchCollectionCD.getClctnId(), update));
             } else if (callbackData instanceof DelCollectionCD) {
@@ -264,8 +273,10 @@ public class BotController extends TelegramLongPollingBot {
             } else if (callbackData instanceof SupportCD) {
                 SupportCD supportCD = (SupportCD)callbackData;
                 SendPhoto sendPhoto = botInfraService.getInfoMessages(supportCD.getSupportId(), update);
-                send(new DeleteMessage(telegramService.getChatId(update),
-                                       telegramService.getMessage(update).getMessageId()));
+                send(new DeleteMessage(
+                        telegramService.getChatId(update),
+                        telegramService.getMessage(update).getMessageId()
+                ));
                 send(sendPhoto);
             }
 
