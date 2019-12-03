@@ -13,10 +13,11 @@ import ru.maza.telegram.domain.service.UserSettingService;
 import ru.maza.telegram.dto.UserSettingDto;
 import ru.maza.telegram.dto.buttons.Button;
 import ru.maza.telegram.dto.buttons.CancelButton;
-import ru.maza.telegram.dto.buttons.ScheduleTrialButton;
-import ru.maza.telegram.dto.buttons.ShowAllTranslateButton;
-import ru.maza.telegram.dto.buttons.TranslateOptionsCountSettingButton;
-import ru.maza.telegram.dto.buttons.WordCountSettingButton;
+import ru.maza.telegram.dto.buttons.settings.LearnedWordCountButton;
+import ru.maza.telegram.dto.buttons.settings.ScheduleTrialButton;
+import ru.maza.telegram.dto.buttons.settings.ShowAllTranslateButton;
+import ru.maza.telegram.dto.buttons.settings.TranslateOptionsCountSettingButton;
+import ru.maza.telegram.dto.buttons.settings.WordCountSettingButton;
 import ru.maza.telegram.utils.EmojiUtils;
 
 import java.util.Collections;
@@ -40,7 +41,7 @@ public class UserSettingServiceImpl implements UserSettingService {
         List<Button> buttons = new java.util.ArrayList<>(List.of(
                 new TranslateOptionsCountSettingButton(
                         userSettingDto.getId(),
-                        getNextWordCountInTrial(userSettingDto.getAnswerOptionsCount()),
+                        getNextAnswerOptionsCount(userSettingDto.getAnswerOptionsCount()),
                         getMessage(
                                 "setting.translate.options.count",
                                 EmojiUtils.extractEmojiPercent(userSettingDto.getAnswerOptionsCount())
@@ -49,12 +50,21 @@ public class UserSettingServiceImpl implements UserSettingService {
                 ),
                 new WordCountSettingButton(
                         userSettingDto.getId(),
-                        getNextAnswerOptionsCount(userSettingDto.getWordCountInTrial()),
+                        getNextWordCountInTrial(userSettingDto.getWordCountInTrial()),
                         getMessage(
                                 "setting.word.count.trial",
                                 EmojiUtils.extractEmojiPercent(userSettingDto.getWordCountInTrial())
                         ),
                         1
+                ),
+                new LearnedWordCountButton(
+                        getMessage(
+                                "setting.learned.word.count",
+                                EmojiUtils.extractEmojiPercent(userSettingDto.getLearnedWordCount())
+                        ),
+                        1,
+                        getLearnedWordCount(userSettingDto.getLearnedWordCount())
+
                 ),
                 new ScheduleTrialButton(
                         getMessage("setting.is.schedule", userSettingDto.isRemindAboutTrial() ? OK : NOT),
@@ -72,22 +82,34 @@ public class UserSettingServiceImpl implements UserSettingService {
         return Collections.singletonList(editMessage);
     }
 
-    private Integer getNextWordCountInTrial(Integer wordCountInTrial) {
-        if (wordCountInTrial == 3) {
+    private Integer getLearnedWordCount(Integer learnedWordCount) {
+        if (learnedWordCount == 3) {
             return 4;
-        } else if (wordCountInTrial == 4) {
+        } else if (learnedWordCount == 4) {
             return 5;
-        } else if (wordCountInTrial == 5) {
+        } else if (learnedWordCount == 5) {
+            return 6;
+        } else if (learnedWordCount == 6) {
+            return 7;
+        } else { return 3; }
+    }
+
+    private Integer getNextAnswerOptionsCount(Integer answerOptionsCount) {
+        if (answerOptionsCount == 3) {
+            return 4;
+        } else if (answerOptionsCount == 4) {
+            return 5;
+        } else if (answerOptionsCount == 5) {
             return 6;
         } else { return 4; }
     }
 
-    private Integer getNextAnswerOptionsCount(Integer answerOptionsCount) {
-        if (answerOptionsCount == 20) {
+    private Integer getNextWordCountInTrial(Integer wordCountInTrial) {
+        if (wordCountInTrial == 20) {
             return 30;
-        } else if (answerOptionsCount == 30) {
+        } else if (wordCountInTrial == 30) {
             return 40;
-        } else if (answerOptionsCount == 40) {
+        } else if (wordCountInTrial == 40) {
             return 50;
         } else { return 20; }
 
