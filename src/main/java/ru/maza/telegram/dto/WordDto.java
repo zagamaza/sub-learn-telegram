@@ -18,6 +18,7 @@ public class WordDto implements Serializable {
     private Long id;
     private String word;
     private String transcription;
+    private String mainTranslation;
     private List<TranslationDto> translation;
     private String lang;
     private LocalDateTime created;
