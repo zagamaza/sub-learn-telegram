@@ -43,8 +43,10 @@ public class BotServiceImpl implements BotService {
                 "word.translate.message",
                 translate.getWord(),
                 translate.getTranscription(),
-                translate.getTranslation().get(0).getTranslate().get(0)
-        );
+                translate.getMainTranslation() != null
+                        ? translate.getMainTranslation()
+                        : translate.getTranslation().get(0).getTranslate().get(0)
+                );
         sendMessage.setText(ss);
         return Collections.singletonList(sendMessage);
     }
