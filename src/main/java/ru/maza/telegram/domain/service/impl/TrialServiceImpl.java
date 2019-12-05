@@ -108,7 +108,9 @@ public class TrialServiceImpl implements TrialService {
                 .getTranslations()
                 .stream()
                 .map(wordDto -> new ChooseTranslateButton(
-                        wordDto.getTranslation().get(0).getTranslate().get(0),
+                        wordDto.getMainTranslation() != null
+                                ? wordDto.getMainTranslation()
+                                : wordDto.getTranslation().get(0).getTranslate().get(0),
                         translateOptionDto.getTrialWordId(),
                         translateOptionDto.getTrialCondensedDto().getId(),
                         wordDto.getId(),
@@ -117,7 +119,9 @@ public class TrialServiceImpl implements TrialService {
                 )).collect(Collectors.toList());
         WordDto translatable = translateOptionDto.getTranslatable();
         collect.add(new ChooseTranslateButton(
-                translatable.getTranslation().get(0).getTranslate().get(0),
+                translatable.getMainTranslation() != null
+                        ? translatable.getMainTranslation()
+                        : translatable.getTranslation().get(0).getTranslate().get(0),
                 translateOptionDto.getTrialWordId(),
                 translateOptionDto.getTrialCondensedDto().getId(),
                 translatable.getId(),
@@ -232,28 +236,33 @@ public class TrialServiceImpl implements TrialService {
 
     @Override
     public BotApiMethod getAlertWithAllTranslate(WordDto word, Update update) {
-        Map<String, List<String>> partToTranslate = word.getTranslation()
-                                                        .stream()
-                                                        .limit(3)
-                                                        .collect(Collectors.toMap(
-                                                                TranslationDto::getPartSpeech,
-                                                                translationDto -> translationDto
-                                                                        .getTranslate()
-                                                                        .stream()
-                                                                        .limit(3)
-                                                                        .collect(
-                                                                                Collectors.toList())
-                                                        ));
+        Map<String, List<String>> partToTranslate
+                = word.getTranslation()
+                      .stream()
+                      .limit(3)
+                      .collect(Collectors.toMap(
+                              TranslationDto::getPartSpeech,
+                              translationDto -> translationDto
+                                      .getTranslate()
+                                      .stream()
+                                      .limit(3)
+                                      .collect(Collectors.toList())
+                      ));
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Варианты перевода для слова " + "\n👉🏼" + word.getWord().toUpperCase() + "\n\n");
-        stringBuilder.append("🗣" + " [" + word.getTranscription() + "]" + "\n\n" + "📖");
-        partToTranslate
-                .forEach((key, value) -> stringBuilder.append(getMessage(
-                        "alert.translate",
-                        key,
-                        String.join(", ", value)
-                )));
-        return telegramService.addAnswerCallbackQuery(update.getCallbackQuery(), true, stringBuilder.toString());
+        stringBuilder
+                .append("Варианты перевода для слова " + "\n👉🏼")
+                .append(word.getWord().toUpperCase())
+                .append("\n\n")
+                .append("🗣" + " [" + word.getTranscription() + "]" + "\n\n" + "📖");
+
+        partToTranslate.forEach((key, value) -> stringBuilder.append(getMessage(
+                "alert.translate",
+                key,
+                String.join(", ", value)
+        )));
+        return telegramService.addAnswerCallbackQuery(
+                update.getCallbackQuery(), true, stringBuilder.toString()
+        );
     }
 
     @Override

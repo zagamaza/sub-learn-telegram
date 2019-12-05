@@ -25,4 +25,6 @@ public class UserSettingDto implements Serializable {
 
     private boolean isShowAllTranslate;
 
+    private Integer learnedWordCount;
+
 }

@@ -70,4 +70,13 @@ public class UserSettingInfraServiceImpl implements UserSettingInfraService {
 
     }
 
+    @Override
+    @CacheEvict(value = "users", key = "#userDto.telegramId")
+    public List<BotApiMethod> updateLearnedWordCount(Integer count, UserDto userDto, Update update) {
+        UserSettingDto userSettingDto = userSettingClientApi.getByUserId(userDto.getId());
+        userSettingDto.setLearnedWordCount(count);
+        userSettingClientApi.update(userSettingDto);
+        return userSettingService.fillMessageWithAllSettings(userSettingDto, update);
+    }
+
 }
