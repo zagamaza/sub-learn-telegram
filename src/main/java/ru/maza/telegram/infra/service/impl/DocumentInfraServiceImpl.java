@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MimeType;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -42,6 +43,8 @@ public class DocumentInfraServiceImpl implements DocumentInfraService {
     @Override
     public List<BotApiMethod> checkDocument(UserDto userDto, Long commandId, Update update) {
         if (!update.getMessage().hasDocument()){
+            return botService.getMessageDocumentNotExists(commandId, userDto, update);
+        } if (!update.getMessage().getDocument().getMimeType().equals("application/x-subrip")){
             return botService.getMessageDocumentNotExists(commandId, userDto, update);
         }
         return Collections.emptyList();

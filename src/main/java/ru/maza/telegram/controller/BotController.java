@@ -65,6 +65,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 @RequiredArgsConstructor
 @Component
 public class BotController extends TelegramLongPollingBot {
@@ -115,8 +117,9 @@ public class BotController extends TelegramLongPollingBot {
                         send(collectionInfraService.createCollection(userDto, update));
                         break;
                     case (Constant.ADD_FILE):
-                        send(documentInfraService.checkDocument(userDto, command.getCommandId(), update));
-                        send(saveFile(update, command.getCommandId()));
+                        List<BotApiMethod> botApiMethods = documentInfraService.checkDocument(userDto, command.getCommandId(), update);
+                        send(botApiMethods);
+                        if (isEmpty(botApiMethods)) send(saveFile(update, command.getCommandId()));
                         break;
                     case (Constant.ADD_SEASON):
                         send(episodeInfraService.addSeason(command.getCommandId(), userDto, update));
