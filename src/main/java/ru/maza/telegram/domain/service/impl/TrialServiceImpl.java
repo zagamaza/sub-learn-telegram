@@ -250,14 +250,16 @@ public class TrialServiceImpl implements TrialService {
                       ));
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
-                .append("Варианты перевода для слова " + "\n👉🏼")
+                .append("Варианты перевода для слова " + "\n👉🏼 ")
                 .append(word.getWord().toUpperCase())
+                .append(" - ")
+                .append(word.getMainTranslation())
                 .append("\n\n")
-                .append("🗣" + " [" + word.getTranscription() + "]" + "\n\n" + "📖");
+                .append("🗣" + " [" + word.getTranscription() + "]" + "\n\n");
 
         partToTranslate.forEach((key, value) -> stringBuilder.append(getMessage(
                 "alert.translate",
-                key,
+                "📖 " + key,
                 String.join(", ", value)
         )));
         return telegramService.addAnswerCallbackQuery(
