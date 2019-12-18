@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
@@ -16,8 +15,11 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage
 import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.maza.telegram.client.UserActionClient;
 import ru.maza.telegram.domain.service.TelegramService;
+import ru.maza.telegram.dto.ActionType;
 import ru.maza.telegram.dto.Constant;
+import ru.maza.telegram.dto.UserActionDto;
 import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.callbackData.AddCollectionCD;
 import ru.maza.telegram.dto.callbackData.AddFileCD;
@@ -83,6 +85,8 @@ public class BotController extends TelegramLongPollingBot {
     private final TrialInfraService trialInfraService;
     private final UserSettingInfraService userSettingInfraService;
 
+    private final UserActionClient userActionClient;
+
     @Value("${tg.token}")
     private String token;
 
@@ -109,6 +113,8 @@ public class BotController extends TelegramLongPollingBot {
             Command command = commandInfraService.get(userDto.getId());
             commandInfraService.remove(userDto.getId());
             if (command != null) {
+                userActionClient.create(new UserActionDto(command.getTextCommands(), userDto.getId(), ActionType.COMMAND));
+
                 switch (command.getTextCommands()) {
                     case (Constant.NEW_COLLECTION):
                         send(collectionInfraService.createCollection(userDto, update));
@@ -119,7 +125,7 @@ public class BotController extends TelegramLongPollingBot {
                     case (Constant.ADD_FILE):
                         List<BotApiMethod> botApiMethods = documentInfraService.checkDocument(userDto, command.getCommandId(), update);
                         send(botApiMethods);
-                        if (isEmpty(botApiMethods)) send(saveFile(update, command.getCommandId()));
+                        if (isEmpty(botApiMethods)) { send(saveFile(update, command.getCommandId())); }
                         break;
                     case (Constant.ADD_SEASON):
                         send(episodeInfraService.addSeason(command.getCommandId(), userDto, update));
@@ -132,6 +138,8 @@ public class BotController extends TelegramLongPollingBot {
         }
 
         if (update.hasMessage() && update.getMessage().hasText()) {
+            userActionClient.create(new UserActionDto(update.getMessage().getText(), userDto.getId(), ActionType.TEXT));
+
             String answer = telegramService.getTextMessage(update).toLowerCase();
             switch (answer) {
                 case ("/start"):
@@ -154,7 +162,10 @@ public class BotController extends TelegramLongPollingBot {
 
         }
         if (update.hasCallbackQuery()) {
-            CallbackData callbackData = callbackInfraService.getCallbackData(update.getCallbackQuery().getData());
+            String data = update.getCallbackQuery().getData();
+
+            CallbackData callbackData = callbackInfraService.getCallbackData(data);
+            userActionClient.create(new UserActionDto(callbackData.getCz(), userDto.getId(), ActionType.CALLBACK));
 
             if (callbackData instanceof ChooseCollectionCD) {
                 ChooseCollectionCD chooseCollection = (ChooseCollectionCD)callbackData;
@@ -293,6 +304,8 @@ public class BotController extends TelegramLongPollingBot {
 //                }
         }
         if (update.hasInlineQuery()) {
+            String query = update.getInlineQuery().getQuery();
+            userActionClient.create(new UserActionDto(query, userDto.getId(), ActionType.INLINE_QUERY));
             send(callbackInfraService.searchCollection(update));
         }
 
@@ -353,7 +366,10 @@ public class BotController extends TelegramLongPollingBot {
         try {
             file = java.io.File.createTempFile("file", null);
             File execute = execute(getFile);
-            send(telegramService.getSendChatAction(telegramService.getMessage(update), ActionType.UPLOADDOCUMENT));
+            send(telegramService.getSendChatAction(
+                    telegramService.getMessage(update),
+                    org.telegram.telegrambots.meta.api.methods.ActionType.UPLOADDOCUMENT
+            ));
             URL fileUrl = new URL(execute.getFileUrl(token));
             HttpURLConnection httpConn = (HttpURLConnection)fileUrl.openConnection();
             InputStream inputStream = httpConn.getInputStream();
