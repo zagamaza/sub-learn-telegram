@@ -11,4 +11,17 @@ server:
 
 sublearn:
   back:
-    url: http://localhost:8082/
+    url: http://sub-learn-back:8080/api
+  competition:
+    url: http://sub-learn-competitions:8080/api/competition
+
+spring:
+  redis:
+    host: redis
+    port: 6379
+
+  rabbitmq:
+    host: rabbit
+    port: 5672
+    username: guest
+    password: guest

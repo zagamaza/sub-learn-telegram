@@ -23,6 +23,7 @@ import ru.maza.telegram.dto.UserActionDto;
 import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.callbackData.AddCollectionCD;
 import ru.maza.telegram.dto.callbackData.AddFileCD;
+import ru.maza.telegram.dto.callbackData.AddFriendCD;
 import ru.maza.telegram.dto.callbackData.AddPersonalCollectionCD;
 import ru.maza.telegram.dto.callbackData.AddSearchCollectionCD;
 import ru.maza.telegram.dto.callbackData.CTlteCD;
@@ -39,6 +40,7 @@ import ru.maza.telegram.dto.callbackData.DelEpisodeCD;
 import ru.maza.telegram.dto.callbackData.LearnedWordCD;
 import ru.maza.telegram.dto.callbackData.LearnedWordCountCD;
 import ru.maza.telegram.dto.callbackData.MyCollectionsCD;
+import ru.maza.telegram.dto.callbackData.MyCompetitionsCD;
 import ru.maza.telegram.dto.callbackData.MySettingsCD;
 import ru.maza.telegram.dto.callbackData.MyTrialsCD;
 import ru.maza.telegram.dto.callbackData.PageCD;
@@ -54,6 +56,7 @@ import ru.maza.telegram.infra.service.BotInfraService;
 import ru.maza.telegram.infra.service.CallbackInfraService;
 import ru.maza.telegram.infra.service.CollectionInfraService;
 import ru.maza.telegram.infra.service.CommandInfraService;
+import ru.maza.telegram.infra.service.CompetitionInfraService;
 import ru.maza.telegram.infra.service.DocumentInfraService;
 import ru.maza.telegram.infra.service.EpisodeInfraService;
 import ru.maza.telegram.infra.service.TextInfraService;
@@ -84,6 +87,7 @@ public class BotController extends TelegramLongPollingBot {
     private final EpisodeInfraService episodeInfraService;
     private final TrialInfraService trialInfraService;
     private final UserSettingInfraService userSettingInfraService;
+    private final CompetitionInfraService competitionInfraService;
 
     private final UserActionClient userActionClient;
 
@@ -133,6 +137,10 @@ public class BotController extends TelegramLongPollingBot {
                     case (Constant.ADD_SERIAL):
                         send(episodeInfraService.addSeries(command.getCommandId(), userDto, update));
                         break;
+                    case (Constant.ADD_FRIEND):
+                        send(competitionInfraService.addFriend(userDto, update));
+                        send(competitionInfraService.getCompetitionsWindow(userDto, update, false));
+                        break;
                 }
             }
         }
@@ -172,7 +180,7 @@ public class BotController extends TelegramLongPollingBot {
                 send(collectionInfraService.chooseCollection(chooseCollection.getCltnId(), userDto, update));
             } else if (callbackData instanceof CTlteCD) {
                 CTlteCD chooseTranslateCD = (CTlteCD)callbackData;
-                send(trialInfraService.saveAndCheckResult(chooseTranslateCD, update));
+                send(trialInfraService.saveAndCheckResult(chooseTranslateCD, userDto, update));
                 if (!chooseTranslateCD.getRw().equals(chooseTranslateCD.getWd()) ||
                         userDto.getUserSettingDto().isShowAllTranslate()) {
                     Thread.sleep(100);
@@ -246,6 +254,17 @@ public class BotController extends TelegramLongPollingBot {
                 send(userSettingInfraService.updateLearnedWordCount(learnedWordCountCD.getLearnedCount(), userDto, update));
             }
 
+            /**Страница рейтинга*/
+            else if (callbackData instanceof MyCompetitionsCD) {
+                send(competitionInfraService.getCompetitionsWindow(userDto, update, true));
+            }  else if (callbackData instanceof AddFriendCD) {
+                send(competitionInfraService.wantAddFriend(userDto, update));
+            }
+
+
+
+
+
             else if (callbackData instanceof AddSearchCollectionCD) {
                 AddSearchCollectionCD searchCollectionCD = (AddSearchCollectionCD)callbackData;
                 send(collectionInfraService.addCollection(userDto, searchCollectionCD.getClctnId(), update));
@@ -261,6 +280,8 @@ public class BotController extends TelegramLongPollingBot {
                     send(collectionInfraService.getCollectionByPage(userDto, pageCD, update));
                 } else if (pageCD.getEntity().equals("trial")) {
                     send(trialInfraService.getTrialsByPage(userDto, pageCD, update));
+                } else if (pageCD.getEntity().equals("friend")) {
+                    send(competitionInfraService.getFriendsByPage(userDto, pageCD, update));
                 }
             } else if (callbackData instanceof LearnedWordCD) {
                 LearnedWordCD learnedWordCD = (LearnedWordCD)callbackData;
