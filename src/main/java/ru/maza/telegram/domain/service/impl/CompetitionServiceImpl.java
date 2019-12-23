@@ -17,6 +17,9 @@ import ru.maza.telegram.dto.buttons.Button;
 import ru.maza.telegram.dto.buttons.CancelButton;
 import ru.maza.telegram.dto.buttons.PageButton;
 import ru.maza.telegram.dto.buttons.competitions.AddFriendButton;
+import ru.maza.telegram.dto.buttons.competitions.DeleteFriendButton;
+import ru.maza.telegram.dto.buttons.competitions.MyCompetitionsButton;
+import ru.maza.telegram.dto.buttons.competitions.MyLeagueButton;
 import ru.maza.telegram.dto.competition.CompetitionUserDto;
 
 import java.util.ArrayList;
@@ -43,6 +46,8 @@ public class CompetitionServiceImpl implements CompetitionService {
             Boolean isEdit
     ) {
         List<Button> buttons = new ArrayList<>();
+        buttons.add(new MyLeagueButton(getMessage("button.common.league")));
+        buttons.add(new DeleteFriendButton(getMessage("button.competitions.want.delete.friend"), 2));
         buttons.add(new AddFriendButton(getMessage("button.competitions.want.add.friend"), 1));
 
         if (page.getPage() != 0) {
@@ -62,12 +67,14 @@ public class CompetitionServiceImpl implements CompetitionService {
         if (isEdit) {
             EditMessageText editMessage = telegramService.getEditMessage(update);
             editMessage.setReplyMarkup(keyboardMarkup);
+            editMessage.setParseMode(null);
             editMessage.setText(getMessage("competitions.start.window", users));
             return Collections.singletonList(editMessage);
 
         } else {
             SendMessage sendMessage = telegramService.getSendMessage(update);
             sendMessage.setReplyMarkup(keyboardMarkup);
+            sendMessage.setParseMode(null);
             sendMessage.setText(getMessage("competitions.start.window", users));
             return Collections.singletonList(sendMessage);
         }
@@ -123,6 +130,25 @@ public class CompetitionServiceImpl implements CompetitionService {
     public BotApiMethod getAllertNotHaveRating(Update update) {
         String text = getMessage("competitions.validation.not.train");
         return telegramService.addAnswerCallbackQuery(update.getCallbackQuery(), true, text);
+    }
+
+    @Override
+    public List<BotApiMethod> getMessageWantDeleteFriend(Update update) {
+        EditMessageText editMessage = telegramService.getEditMessage(update);
+        editMessage.setText(getMessage("competitions.get.contact.delete"));
+        return Collections.singletonList(editMessage);
+    }
+
+    @Override
+    public List<BotApiMethod> getMessageDeletedFriend(Update update) {
+        SendMessage sendMessage = telegramService.getSendMessage(update);
+        String firstName = update.getMessage().getContact().getFirstName();
+        if (firstName.isEmpty()) {
+            firstName = update.getMessage().getContact().getLastName();
+        }
+        sendMessage.setParseMode(null);
+        sendMessage.setText(getMessage("competitions.deleted.friend", firstName));
+        return Collections.singletonList(sendMessage);
     }
 
     private String getMessage(String key, Object... args) {

@@ -78,4 +78,26 @@ public class CompetitionInfraServiceImpl implements CompetitionInfraService {
         return competitionService.getMessageStartCompetition(page, userDto, users.getContent(), update, true);
     }
 
+    @Override
+    public List<BotApiMethod> deleteFriend(UserDto userDto, Update update) {
+        if (!update.getMessage().hasContact()) {
+            return competitionService.getMessageNotValidContact(update);
+        } else {
+            Integer userID = update.getMessage().getContact().getUserID();
+            try {
+                CompetitionUserDto competitionFriendUserDto = competitionUserClient.getByTelegramId(userID.longValue());
+                userFriendClient.delete(userDto.getId(), competitionFriendUserDto.getId());
+                return competitionService.getMessageDeletedFriend(update);
+            } catch (Exception e) {
+                return competitionService.getMessageFriendAbsent(update);
+            }
+        }
+    }
+
+    @Override
+    public List<BotApiMethod> wantDeleteFriend(UserDto userDto, Update update) {
+        commandInfraService.save(new Command(userDto.getId(), Constant.DELETE_FRIEND, null));
+        return competitionService.getMessageWantDeleteFriend(update);
+    }
+
 }

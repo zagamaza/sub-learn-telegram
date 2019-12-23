@@ -22,6 +22,9 @@ public interface UserFriendClient {
     UserFriendDto update(@RequestBody UserFriendDto userFriendDto);
 
     @DeleteMapping("/user_friends/{id}")
-    void delete(@PathVariable("id") Integer id);
+    void delete(@PathVariable("id") Long id);
+
+    @DeleteMapping("/user_friends/users/{userId}/userFriend/{userFriendId}")
+    void delete(@PathVariable("userId") Long userId, @PathVariable("userFriendId") Long userFriendId);
 
 }

@@ -17,4 +17,8 @@ public interface CompetitionInfraService {
 
     List<BotApiMethod> getFriendsByPage(UserDto userDto, PageCD pageCD, Update update);
 
+    List<BotApiMethod> deleteFriend(UserDto userDto, Update update);
+
+    List<BotApiMethod> wantDeleteFriend(UserDto userDto, Update update);
+
 }

@@ -27,4 +27,8 @@ public interface CompetitionService {
 
     BotApiMethod getAllertNotHaveRating(Update update);
 
+    List<BotApiMethod> getMessageWantDeleteFriend(Update update);
+
+    List<BotApiMethod> getMessageDeletedFriend(Update update);
+
 }

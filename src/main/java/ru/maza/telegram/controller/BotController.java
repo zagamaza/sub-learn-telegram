@@ -37,10 +37,12 @@ import ru.maza.telegram.dto.callbackData.ChooseTrialCD;
 import ru.maza.telegram.dto.callbackData.ChsSeriesCD;
 import ru.maza.telegram.dto.callbackData.DelCollectionCD;
 import ru.maza.telegram.dto.callbackData.DelEpisodeCD;
+import ru.maza.telegram.dto.callbackData.DeleteFriendCD;
 import ru.maza.telegram.dto.callbackData.LearnedWordCD;
 import ru.maza.telegram.dto.callbackData.LearnedWordCountCD;
 import ru.maza.telegram.dto.callbackData.MyCollectionsCD;
 import ru.maza.telegram.dto.callbackData.MyCompetitionsCD;
+import ru.maza.telegram.dto.callbackData.MyLeagueCD;
 import ru.maza.telegram.dto.callbackData.MySettingsCD;
 import ru.maza.telegram.dto.callbackData.MyTrialsCD;
 import ru.maza.telegram.dto.callbackData.PageCD;
@@ -59,6 +61,7 @@ import ru.maza.telegram.infra.service.CommandInfraService;
 import ru.maza.telegram.infra.service.CompetitionInfraService;
 import ru.maza.telegram.infra.service.DocumentInfraService;
 import ru.maza.telegram.infra.service.EpisodeInfraService;
+import ru.maza.telegram.infra.service.LeagueInfraService;
 import ru.maza.telegram.infra.service.TextInfraService;
 import ru.maza.telegram.infra.service.TrialInfraService;
 import ru.maza.telegram.infra.service.UserSettingInfraService;
@@ -88,6 +91,7 @@ public class BotController extends TelegramLongPollingBot {
     private final TrialInfraService trialInfraService;
     private final UserSettingInfraService userSettingInfraService;
     private final CompetitionInfraService competitionInfraService;
+    private final LeagueInfraService leagueInfraService;
 
     private final UserActionClient userActionClient;
 
@@ -139,6 +143,10 @@ public class BotController extends TelegramLongPollingBot {
                         break;
                     case (Constant.ADD_FRIEND):
                         send(competitionInfraService.addFriend(userDto, update));
+                        send(competitionInfraService.getCompetitionsWindow(userDto, update, false));
+                        break;
+                    case (Constant.DELETE_FRIEND):
+                        send(competitionInfraService.deleteFriend(userDto, update));
                         send(competitionInfraService.getCompetitionsWindow(userDto, update, false));
                         break;
                 }
@@ -259,6 +267,10 @@ public class BotController extends TelegramLongPollingBot {
                 send(competitionInfraService.getCompetitionsWindow(userDto, update, true));
             }  else if (callbackData instanceof AddFriendCD) {
                 send(competitionInfraService.wantAddFriend(userDto, update));
+            } else if (callbackData instanceof MyLeagueCD) {
+                send(leagueInfraService.getLeagueUsersWindow(userDto, update));
+            }else if (callbackData instanceof DeleteFriendCD) {
+                send(competitionInfraService.wantDeleteFriend(userDto, update));
             }
 
 
@@ -282,6 +294,8 @@ public class BotController extends TelegramLongPollingBot {
                     send(trialInfraService.getTrialsByPage(userDto, pageCD, update));
                 } else if (pageCD.getEntity().equals("friend")) {
                     send(competitionInfraService.getFriendsByPage(userDto, pageCD, update));
+                }else if (pageCD.getEntity().equals("league")) {
+                    send(leagueInfraService.getLeagueUsersByPage(userDto, pageCD, update));
                 }
             } else if (callbackData instanceof LearnedWordCD) {
                 LearnedWordCD learnedWordCD = (LearnedWordCD)callbackData;

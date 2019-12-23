@@ -15,6 +15,7 @@ public class CompetitionUserDto {
     private OffsetDateTime created;
     private Integer experience;
     private Long levelId;
+    private Level level;
     private Long telegramId;
     private String userName;
 
