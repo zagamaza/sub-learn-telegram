@@ -11,4 +11,6 @@ server:
 
 sublearn:
   back:
-    url: http://localhost:8082/
+    url: http://sub-learn-back:8080/api
+    login:
+    password:
