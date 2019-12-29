@@ -74,7 +74,7 @@ jobs:
     if: github.event_name == 'push' && (contains(github.ref, 'develop') || contains(github.ref, 'master'))
     runs-on: ubuntu-latest
     needs: [publish]
-    name: Deploy on server
+    name: Deploy
     steps:
       - uses: actions/checkout@v1
       - uses: actions/cache@v1
@@ -85,21 +85,34 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Make gradlew executable
         run: chmod +x ./gradlew
-
+      - name: Set env VERSION
+        run: |
+          echo "::set-env name=VERSION::$(./gradlew -q printVersion)"
+        shell: bash
       - name: SH script for deploy develop
         if: github.event_name == 'push' && contains(github.ref, 'develop')
+        uses: appleboy/ssh-action@master
         env:
           PROJECT_TAG: TELEGRAM_IMAGE_VERSION
-          DEPLOY_IP: 159.69.81.0
-          SSH_PRIVATE: ${{ secrets.SSH_PRIVATE }}
-        run: ./scripts/deploy.sh -v $(./gradlew -q printVersion)
-        shell: bash
+        with:
+          username: ci
+          host: ${{ secrets.DEPLOY_IP_DEVELOP }}
+          key: ${{ secrets.SSH_PRIVATE }}
+          envs: VERSION, PROJECT_TAG
+          script: |
+            echo $PROJECT_TAG=$VERSION > ~/subl/properties/$PROJECT_TAG
+            sh ~/subl/start.sh
 
       - name: SH script for deploy master
         if: github.event_name == 'push' && contains(github.ref, 'master')
+        uses: appleboy/ssh-action@master
         env:
           PROJECT_TAG: TELEGRAM_IMAGE_VERSION
-          DEPLOY_IP: ${{ secrets.DEPLOY_IP_MASTER }}
-          SSH_PRIVATE: ${{ secrets.SSH_PRIVATE }}
-        run: ./scripts/deploy.sh -v $(./gradlew -q printVersion)
-        shell: bash
+        with:
+          username: ci
+          host: ${{ secrets.DEPLOY_IP_MASTER }}
+          key: ${{ secrets.SSH_PRIVATE }}
+          envs: VERSION, PROJECT_TAG
+          script: |
+            echo $PROJECT_TAG=$VERSION > ~/subl/properties/$PROJECT_TAG
+            sh ~/subl/start.sh
