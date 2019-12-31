@@ -12,6 +12,8 @@ server:
 sublearn:
   back:
     url: http://sub-learn-back:8080/api
+    login:
+    password:
   competition:
     url: http://sub-learn-competitions:8080/api/competition
 
