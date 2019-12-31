@@ -2,6 +2,7 @@ package ru.maza.telegram.infra.service.impl;
 
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.callbackData.CTlteCD;
 import ru.maza.telegram.dto.callbackData.ChooseTrialCD;
 import ru.maza.telegram.dto.callbackData.PageCD;
+import ru.maza.telegram.infra.mq.UserMQ;
 import ru.maza.telegram.infra.service.TrialInfraService;
 
 import java.util.List;
@@ -37,6 +39,7 @@ public class TrialInfraServiceImpl implements TrialInfraService {
     private final WordClientApi wordClientApi;
     private final EpisodeClient episodeClient;
     private final TrialService trialService;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     public List<BotApiMethod> startTrial(UserDto userDto, Update update, Long episodeId) {
@@ -48,9 +51,19 @@ public class TrialInfraServiceImpl implements TrialInfraService {
     }
 
     @Override
-    public List<BotApiMethod> saveAndCheckResult(CTlteCD chooseTranslateCD, Update update) {
-        trialWordClientApi.updateTrialWordAndSaveUserWord(TrialWordRequest.from(chooseTranslateCD));
+    public List<BotApiMethod> saveAndCheckResult(CTlteCD chooseTranslateCD, UserDto userDto, Update update) {
+        TrialWordRequest trialWordRequest = TrialWordRequest.from(chooseTranslateCD);
+        sendMQ(userDto, chooseTranslateCD);
+        trialWordClientApi.updateTrialWordAndSaveUserWord(trialWordRequest);
         return List.of(trialService.checkTranslation(chooseTranslateCD, update));
+    }
+
+    private void sendMQ(UserDto userDto, CTlteCD chooseTranslateCD) {
+        if (chooseTranslateCD.getRw().equals(chooseTranslateCD.getWd())) {
+            String userName = userDto.getUserName().replace("_null", "");
+            UserMQ userMQ = new UserMQ(userDto.getId(), userDto.getTelegramId(), userName);
+            rabbitTemplate.convertAndSend(userMQ);
+        }
     }
 
     @Override

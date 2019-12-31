@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import ru.maza.telegram.client.model.RestPageImpl;
 import ru.maza.telegram.dto.UserActionDto;
 
 @FeignClient(contextId = "userActions", name = "userActions", url = "${sublearn.back.url}")
@@ -17,10 +18,10 @@ public interface UserActionClient {
     UserActionDto get(@PathVariable("id") Long id);
 
     @GetMapping("/user_actions")
-    Page<UserActionDto> getAll(Pageable pageable);
+    RestPageImpl<UserActionDto> getAll(Pageable pageable);
 
     @GetMapping("/user_actions/users/{userId}")
-    Page<UserActionDto> getByUserName(@PathVariable("userId") Long userId, Pageable pageable);
+    RestPageImpl<UserActionDto> getByUserName(@PathVariable("userId") Long userId, Pageable pageable);
 
     @PostMapping("/user_actions")
     void create(@RequestBody UserActionDto userActionDto);

@@ -5,6 +5,7 @@ services:
     image: almazic91/sub-learn-telegram
     depends_on:
       - redis
+      - rabitmq
     ports:
       - 8080:8080
     environment:
@@ -19,3 +20,9 @@ services:
       restart: always
       ports:
         - 6379:6379
+    rabitmq:
+      container_name: redis
+      image: rabitmq
+      restart: always
+      ports:
+        - 5672:5672

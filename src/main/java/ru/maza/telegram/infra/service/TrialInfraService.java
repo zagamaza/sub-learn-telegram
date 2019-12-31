@@ -13,7 +13,11 @@ public interface TrialInfraService {
 
     List<BotApiMethod> startTrial(UserDto userDto, Update update, Long episodeId);
 
-    List<BotApiMethod> saveAndCheckResult(CTlteCD chooseTranslateCD, Update update);
+    List<BotApiMethod> saveAndCheckResult(
+            CTlteCD chooseTranslateCD,
+            UserDto userDto,
+            Update update
+    );
 
     List<BotApiMethod> getNextWord(Long trialId, Update update);
 

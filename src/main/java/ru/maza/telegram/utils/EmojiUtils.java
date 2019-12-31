@@ -10,6 +10,9 @@ public class EmojiUtils {
     public static final String OK = EmojiManager.getForAlias("white_check_mark").getUnicode();
     public static final String RIGHT = EmojiManager.getForAlias("ballot_box_with_check").getUnicode();
 
+    public static final String ALLOW_LEFT = EmojiManager.getForAlias("arrow_left").getUnicode();
+    public static final String ALLOW_RIGHT = EmojiManager.getForAlias("arrow_right").getUnicode();
+
     public String extractEmojiPercent(Integer percent) {
         if (percent == null) {
             percent = 0;

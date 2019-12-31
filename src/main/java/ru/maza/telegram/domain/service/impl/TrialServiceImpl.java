@@ -199,7 +199,7 @@ public class TrialServiceImpl implements TrialService {
         if (page.getPage() != 0) {
             cancelButtons.add(new PageButton("trial", page.getPage() - 1, true, LEFT, 2));
         }
-        cancelButtons.add(new CancelButton(getMessage("button.cancel.back"), Constant.MY_COLLECTION, 2));
+        cancelButtons.add(new CancelButton(getMessage("button.cancel.back"), Constant.START, 2));
         if ((page.getPage() + 1) * 10 < page.getCount()) {
             cancelButtons.add(new PageButton("trial", page.getPage() + 1, false, NOT_LEFT, 2));
         }

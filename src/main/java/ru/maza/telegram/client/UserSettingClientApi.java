@@ -11,7 +11,6 @@ import ru.maza.telegram.dto.UserSettingDto;
 
 import javax.validation.Valid;
 
-
 @FeignClient(contextId = "userSetting", name = "userSetting", url = "${sublearn.back.url}")
 public interface UserSettingClientApi {
 
