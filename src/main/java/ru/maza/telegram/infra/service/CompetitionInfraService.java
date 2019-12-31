@@ -1,6 +1,7 @@
 package ru.maza.telegram.infra.service;
 
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.callbackData.PageCD;
@@ -11,7 +12,7 @@ public interface CompetitionInfraService {
 
     List<BotApiMethod> getCompetitionsWindow(UserDto userDto, Update update, Boolean isEdit);
 
-    List<BotApiMethod> wantAddFriend(UserDto userDto, Update update);
+    SendMediaGroup wantAddFriend(UserDto userDto, Update update);
 
     List<BotApiMethod> addFriend(UserDto userDto, Update update);
 
@@ -19,6 +20,6 @@ public interface CompetitionInfraService {
 
     List<BotApiMethod> deleteFriend(UserDto userDto, Update update);
 
-    List<BotApiMethod> wantDeleteFriend(UserDto userDto, Update update);
+    SendMediaGroup wantDeleteFriend(UserDto userDto, Update update);
 
 }

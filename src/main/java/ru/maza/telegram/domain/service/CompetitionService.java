@@ -1,6 +1,7 @@
 package ru.maza.telegram.domain.service;
 
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.maza.telegram.dto.Page;
 import ru.maza.telegram.dto.UserDto;
@@ -17,7 +18,7 @@ public interface CompetitionService {
             Boolean isEdit
     );
 
-    List<BotApiMethod> getMessageWantAddFriend(Update update);
+    SendMediaGroup getMessageWantAddFriend(Update update);
 
     List<BotApiMethod> getMessageAddedFriend(Update update);
 
@@ -27,7 +28,7 @@ public interface CompetitionService {
 
     BotApiMethod getAllertNotHaveRating(Update update);
 
-    List<BotApiMethod> getMessageWantDeleteFriend(Update update);
+    SendMediaGroup getMessageWantDeleteFriend(Update update);
 
     List<BotApiMethod> getMessageDeletedFriend(Update update);
 

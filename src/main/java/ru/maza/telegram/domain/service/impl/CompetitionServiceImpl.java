@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.maza.telegram.domain.service.CompetitionService;
 import ru.maza.telegram.domain.service.TelegramService;
@@ -18,10 +20,10 @@ import ru.maza.telegram.dto.buttons.CancelButton;
 import ru.maza.telegram.dto.buttons.PageButton;
 import ru.maza.telegram.dto.buttons.competitions.AddFriendButton;
 import ru.maza.telegram.dto.buttons.competitions.DeleteFriendButton;
-import ru.maza.telegram.dto.buttons.competitions.MyCompetitionsButton;
 import ru.maza.telegram.dto.buttons.competitions.MyLeagueButton;
 import ru.maza.telegram.dto.competition.CompetitionUserDto;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -92,10 +94,18 @@ public class CompetitionServiceImpl implements CompetitionService {
     }
 
     @Override
-    public List<BotApiMethod> getMessageWantAddFriend(Update update) {
-        EditMessageText editMessage = telegramService.getEditMessage(update);
-        editMessage.setText(getMessage("competitions.get.contact"));
-        return Collections.singletonList(editMessage);
+    public SendMediaGroup getMessageWantAddFriend(Update update) {
+        SendMediaGroup sendMediaGroup = new SendMediaGroup();
+        sendMediaGroup.setChatId(telegramService.getChatId(update));
+        InputStream contact = this.getClass().getResourceAsStream("/support/add_contact.jpg");
+        InputStream clip = this.getClass().getResourceAsStream("/support/clip.jpg");
+        InputMediaPhoto inputMediaContact = new InputMediaPhoto();
+        inputMediaContact.setCaption(getMessage("competitions.get.contact"));
+        inputMediaContact.setMedia(contact, "photo");
+        InputMediaPhoto inputMediaClip = new InputMediaPhoto();
+        inputMediaClip.setMedia(clip, "photo1");
+        sendMediaGroup.setMedia(List.of(inputMediaClip, inputMediaContact));
+        return sendMediaGroup;
     }
 
     @Override
@@ -133,10 +143,18 @@ public class CompetitionServiceImpl implements CompetitionService {
     }
 
     @Override
-    public List<BotApiMethod> getMessageWantDeleteFriend(Update update) {
-        EditMessageText editMessage = telegramService.getEditMessage(update);
-        editMessage.setText(getMessage("competitions.get.contact.delete"));
-        return Collections.singletonList(editMessage);
+    public SendMediaGroup getMessageWantDeleteFriend(Update update) {
+        SendMediaGroup sendMediaGroup = new SendMediaGroup();
+        sendMediaGroup.setChatId(telegramService.getChatId(update));
+        InputStream contact = this.getClass().getResourceAsStream("/support/add_contact.jpg");
+        InputStream clip = this.getClass().getResourceAsStream("/support/clip.jpg");
+        InputMediaPhoto inputMediaContact = new InputMediaPhoto();
+        inputMediaContact.setCaption(getMessage("competitions.get.contact.delete"));
+        inputMediaContact.setMedia(contact, "photo");
+        InputMediaPhoto inputMediaClip = new InputMediaPhoto();
+        inputMediaClip.setMedia(clip, "photo1");
+        sendMediaGroup.setMedia(List.of(inputMediaClip, inputMediaContact));
+        return sendMediaGroup;
     }
 
     @Override
