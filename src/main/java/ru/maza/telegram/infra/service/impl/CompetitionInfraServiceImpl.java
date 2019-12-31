@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.maza.telegram.client.CompetitionUserClient;
 import ru.maza.telegram.client.UserFriendClient;
@@ -46,7 +47,7 @@ public class CompetitionInfraServiceImpl implements CompetitionInfraService {
     }
 
     @Override
-    public List<BotApiMethod> wantAddFriend(UserDto userDto, Update update) {
+    public SendMediaGroup wantAddFriend(UserDto userDto, Update update) {
         commandInfraService.save(new Command(userDto.getId(), Constant.ADD_FRIEND, null));
         return competitionService.getMessageWantAddFriend(update);
     }
@@ -95,7 +96,7 @@ public class CompetitionInfraServiceImpl implements CompetitionInfraService {
     }
 
     @Override
-    public List<BotApiMethod> wantDeleteFriend(UserDto userDto, Update update) {
+    public SendMediaGroup wantDeleteFriend(UserDto userDto, Update update) {
         commandInfraService.save(new Command(userDto.getId(), Constant.DELETE_FRIEND, null));
         return competitionService.getMessageWantDeleteFriend(update);
     }
