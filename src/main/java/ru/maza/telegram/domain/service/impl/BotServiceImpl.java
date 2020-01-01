@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import ru.maza.telegram.domain.service.BotService;
 import ru.maza.telegram.domain.service.TelegramService;
 import ru.maza.telegram.dto.Constant;
+import ru.maza.telegram.dto.NotificationDto;
 import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.WordDto;
 import ru.maza.telegram.dto.buttons.AddFileButton;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -129,6 +131,23 @@ public class BotServiceImpl implements BotService {
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);
         sendMessage.setReplyMarkup(keyboardMarkup);
         return Collections.singletonList(sendMessage);
+    }
+
+    @Override
+    public List<BotApiMethod> getMessageNotifications(List<NotificationDto> content) {
+        return content
+                .stream()
+                .map(n -> {
+                    SendMessage sendMessage = new SendMessage(n.getUserDto().getTelegramId(), n.getText());
+                    sendMessage.setParseMode("Markdown");
+                    InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(List.of(new CancelButton(
+                            getMessage("button.cancel"),
+                            Constant.START,
+                            1
+                    )));
+                    return sendMessage.setReplyMarkup(keyboardMarkup);
+                })
+                .collect(Collectors.toList());
     }
 
     private String getMessage(String key, Object... args) {

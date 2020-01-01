@@ -63,6 +63,7 @@ import ru.maza.telegram.infra.service.CompetitionInfraService;
 import ru.maza.telegram.infra.service.DocumentInfraService;
 import ru.maza.telegram.infra.service.EpisodeInfraService;
 import ru.maza.telegram.infra.service.LeagueInfraService;
+import ru.maza.telegram.infra.service.NotificationInfraService;
 import ru.maza.telegram.infra.service.TextInfraService;
 import ru.maza.telegram.infra.service.TrialInfraService;
 import ru.maza.telegram.infra.service.UserSettingInfraService;
@@ -71,7 +72,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -93,6 +93,7 @@ public class BotController extends TelegramLongPollingBot {
     private final UserSettingInfraService userSettingInfraService;
     private final CompetitionInfraService competitionInfraService;
     private final LeagueInfraService leagueInfraService;
+    private final NotificationInfraService notificationInfraService;
 
     private final UserActionClient userActionClient;
 
@@ -179,8 +180,12 @@ public class BotController extends TelegramLongPollingBot {
 
         }
         if (update.hasCallbackQuery()) {
+            AnswerCallbackQuery answerCallback = notificationInfraService.getAnswerCallback(update);
+            if (answerCallback!=null){
+                send(answerCallback);
+                return;
+            }
             String data = update.getCallbackQuery().getData();
-
             CallbackData callbackData = callbackInfraService.getCallbackData(data);
             userActionClient.create(new UserActionDto(callbackData.getCz(), userDto.getId(), ActionType.CALLBACK));
 
@@ -266,19 +271,13 @@ public class BotController extends TelegramLongPollingBot {
             /**Страница рейтинга*/
             else if (callbackData instanceof MyCompetitionsCD) {
                 send(competitionInfraService.getCompetitionsWindow(userDto, update, true));
-            }  else if (callbackData instanceof AddFriendCD) {
+            } else if (callbackData instanceof AddFriendCD) {
                 send(competitionInfraService.wantAddFriend(userDto, update));
             } else if (callbackData instanceof MyLeagueCD) {
                 send(leagueInfraService.getLeagueUsersWindow(userDto, update));
-            }else if (callbackData instanceof DeleteFriendCD) {
+            } else if (callbackData instanceof DeleteFriendCD) {
                 send(competitionInfraService.wantDeleteFriend(userDto, update));
-            }
-
-
-
-
-
-            else if (callbackData instanceof AddSearchCollectionCD) {
+            } else if (callbackData instanceof AddSearchCollectionCD) {
                 AddSearchCollectionCD searchCollectionCD = (AddSearchCollectionCD)callbackData;
                 send(collectionInfraService.addCollection(userDto, searchCollectionCD.getClctnId(), update));
             } else if (callbackData instanceof DelCollectionCD) {
@@ -295,7 +294,7 @@ public class BotController extends TelegramLongPollingBot {
                     send(trialInfraService.getTrialsByPage(userDto, pageCD, update));
                 } else if (pageCD.getEntity().equals("friend")) {
                     send(competitionInfraService.getFriendsByPage(userDto, pageCD, update));
-                }else if (pageCD.getEntity().equals("league")) {
+                } else if (pageCD.getEntity().equals("league")) {
                     send(leagueInfraService.getLeagueUsersByPage(userDto, pageCD, update));
                 }
             } else if (callbackData instanceof LearnedWordCD) {
@@ -348,22 +347,25 @@ public class BotController extends TelegramLongPollingBot {
     }
 
     /**
-     * Метод @Scheduled, проверяет каждый день в 17:00 должен ли кто нибудь завтра сдать книную,
-     * если находит таких - > отправляет напоминание
+     * Метод sendPlanMessages, каждые 15 минут ходит в микросервис back за уведомлениями типа
+     * {@link ru.maza.telegram.dto.NotificationType#MESSAGE} для пользователя,
+     * если находит -> отправляет уведомление
+     */
+    @Scheduled(cron = "* */15 * * * *")
+    private void sendPlanMessages() {
+        List<BotApiMethod> notifications = notificationInfraService.getTextNotifications();
+        for (BotApiMethod messageBotApiMethod : notifications) {
+            send(messageBotApiMethod);
+        }
+    }
+
+    /**
+     * Метод updateCallbackNotification, каждые день в 17:00 ходит в микросервис back за уведомлениями типа
+     * {@link ru.maza.telegram.dto.NotificationType#CALLBACK} для пользователя
      */
     @Scheduled(cron = "0 0 17 * * ?")
-    private void sendPlanMessages() {
-//        List<BotApiMethod> apiMethod = botService.getPlaningMessage();
-        List<BotApiMethod> apiMethod = new ArrayList<>();
-        for (BotApiMethod messageBotApiMethod : apiMethod) {
-            try {
-                if (messageBotApiMethod != null) {
-                    execute(messageBotApiMethod);
-                }
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-        }
+    private void updateCallbackNotification() {
+        notificationInfraService.updateCallbackNotifications();
     }
 
     private void send(BotApiMethod apiMethod) {
