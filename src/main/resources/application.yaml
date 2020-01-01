@@ -17,6 +17,9 @@ sublearn:
   competition:
     url: http://ms-sublearn-competition:8080/api/competition
 
+notification:
+  count: 1
+
 spring:
   redis:
     host: redis

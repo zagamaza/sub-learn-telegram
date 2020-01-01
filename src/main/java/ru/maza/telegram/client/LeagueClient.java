@@ -17,8 +17,7 @@ import ru.maza.telegram.dto.competition.Level;
 
 import javax.validation.Valid;
 
-@FeignClient(contextId = "leagues", name = "leagues" +
-        "", url = "${sublearn.competition.url}")
+@FeignClient(contextId = "leagues", name = "leagues", url = "${sublearn.competition.url}")
 public interface LeagueClient {
 
     @GetMapping("/leagues/{id}")
