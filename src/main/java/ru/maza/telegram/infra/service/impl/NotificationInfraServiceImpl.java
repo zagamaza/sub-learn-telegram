@@ -60,14 +60,16 @@ public class NotificationInfraServiceImpl implements NotificationInfraService {
 
     @Override
     public AnswerCallbackQuery getAnswerCallback(Update update) {
-        int i = (int)(Math.random() * 100);
-        if (i==77){
+        int i = (int)(Math.random() * 500);
+        if (i == 77) {
             AnswerCallbackQuery callbackQuery = getAnswerCallbackQuery();
+            if (callbackQuery == null) {
+                return null;
+            }
             callbackQuery.setCallbackQueryId(update.getCallbackQuery().getId());
             callbackQuery.setShowAlert(true);
             return callbackQuery;
-        }
-        else return null;
+        } else { return null; }
     }
 
 }

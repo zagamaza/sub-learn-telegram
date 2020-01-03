@@ -29,13 +29,9 @@ public class LeagueInfraServiceImpl implements LeagueInfraService {
 
     @Override
     public List<BotApiMethod> getLeagueUsersWindow(UserDto userDto, Update update) {
-        CompetitionUserDto competitionUserDto = competitionUserClient.get(userDto.getId());
-        RestPageImpl<LeagueDto> leagues = leagueClient.getByLeagueLevelCode(
-                competitionUserDto.getLevel(),
-                PageRequest.of(0, 10)
-        );
+        RestPageImpl<LeagueDto> leagues = leagueClient.getPageWithUserByUserId(userDto.getId());
         Integer collectionCount = (int)leagues.getTotalElements();
-        Page page = new Page(collectionCount, 0);
+        Page page = new Page(collectionCount, leagues.getPageable().getPageNumber());
         return leagueService.getMessageStartLeagues(page, userDto, leagues.getContent(), update);
     }
 

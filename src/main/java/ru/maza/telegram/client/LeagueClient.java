@@ -1,8 +1,6 @@
 package ru.maza.telegram.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,13 +13,14 @@ import ru.maza.telegram.client.model.RestPageImpl;
 import ru.maza.telegram.dto.competition.LeagueDto;
 import ru.maza.telegram.dto.competition.Level;
 
-import javax.validation.Valid;
-
 @FeignClient(contextId = "leagues", name = "leagues", url = "${sublearn.competition.url}")
 public interface LeagueClient {
 
     @GetMapping("/leagues/{id}")
     LeagueDto get(@PathVariable("id") Integer id);
+
+    @GetMapping("/leagues/users/{userId}/my")
+    RestPageImpl<LeagueDto> getPageWithUserByUserId(@PathVariable("userId") Long userId);
 
     @GetMapping("/leagues")
     RestPageImpl<LeagueDto> getByLeagueLevelCode(@RequestParam("level") Level level, Pageable pageable);
