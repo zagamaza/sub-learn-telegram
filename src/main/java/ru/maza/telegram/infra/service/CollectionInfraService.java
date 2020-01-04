@@ -3,6 +3,7 @@ package ru.maza.telegram.infra.service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.maza.telegram.dto.UserDto;
+import ru.maza.telegram.dto.callbackData.AddSearchCollectionCD;
 import ru.maza.telegram.dto.callbackData.ChooseIsSerialCD;
 import ru.maza.telegram.dto.callbackData.PageCD;
 
@@ -22,7 +23,7 @@ public interface CollectionInfraService {
 
     List<BotApiMethod> wantCreateCollection(UserDto userDto, Update update);
 
-    List<BotApiMethod> addCollection(UserDto userDto, Long collectionId, Update update);
+    List<BotApiMethod> addCollection(UserDto userDto, AddSearchCollectionCD addSearchCollectionCD, Update update);
 
     List<BotApiMethod> deleteCollection(UserDto userDto, Long collectionId, Update update);
 

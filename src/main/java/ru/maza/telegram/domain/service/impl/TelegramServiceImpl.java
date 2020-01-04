@@ -25,6 +25,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.maza.telegram.domain.service.TelegramService;
 import ru.maza.telegram.dto.CollectionCondensedDto;
+import ru.maza.telegram.dto.FoundCollection;
 import ru.maza.telegram.dto.buttons.AddSearchCollectionsButton;
 import ru.maza.telegram.dto.buttons.Button;
 import ru.maza.telegram.dto.callbackData.CallbackData;
@@ -40,7 +41,9 @@ import java.util.stream.IntStream;
 @Service
 @RequiredArgsConstructor
 public class TelegramServiceImpl implements TelegramService {
+
     private static final String MARKDOWN = "Markdown";
+    private static final String EMPTY_IMAGE = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Kodak-Max-400-35mm-Film.jpg/255px-Kodak-Max-400-35mm-Film.jpg";
 
 
     private final MessageSource messageSource;
@@ -266,11 +269,18 @@ public class TelegramServiceImpl implements TelegramService {
         inlineQueryResultArticle.setHideUrl(true);
         inlineQueryResultArticle.setId(UUID.randomUUID().toString());
         inlineQueryResultArticle.setTitle(collectionCondensedDto.getName());
+        String url = collectionCondensedDto.getUrl();
+        if (url.startsWith("http")) {
+            inlineQueryResultArticle.setThumbUrl(collectionCondensedDto.getUrl());
+        } else {
+            inlineQueryResultArticle.setThumbUrl(EMPTY_IMAGE);
+        }
         inlineQueryResultArticle.setThumbUrl(collectionCondensedDto.getUrl());
 
         InlineKeyboardMarkup keyboardMarkup = getKeyboardMarkup2(List.of(
                 new AddSearchCollectionsButton(
                         collectionCondensedDto.getId(),
+                        null,
                         getMessage("button.add.collection"),
                         1
                 )));
@@ -280,6 +290,36 @@ public class TelegramServiceImpl implements TelegramService {
         inputTextMessageContent.setMessageText(collectionCondensedDto.getName());
         inlineQueryResultArticle.setInputMessageContent(inputTextMessageContent);
         return inlineQueryResultArticle;
+    }
+
+    @Override
+    public InlineQueryResultArticle fillInlineQueryResultPhoto(FoundCollection foundCollection) {
+        InlineQueryResultArticle inlineQueryResultArticle = new InlineQueryResultArticle();
+        inlineQueryResultArticle.setDescription("year: " + foundCollection.getYear() +
+                                                        "\n" + "type: " + foundCollection.getType());
+        inlineQueryResultArticle.setHideUrl(true);
+        inlineQueryResultArticle.setId(UUID.randomUUID().toString());
+        inlineQueryResultArticle.setTitle(foundCollection.getTitle());
+        String url = foundCollection.getPoster();
+        if (url.startsWith("http")){
+            inlineQueryResultArticle.setThumbUrl(foundCollection.getPoster());
+        }else {
+            inlineQueryResultArticle.setThumbUrl(EMPTY_IMAGE);
+        }
+        InlineKeyboardMarkup keyboardMarkup = getKeyboardMarkup2(List.of(
+                new AddSearchCollectionsButton(
+                        null,
+                        foundCollection.getImdbID(),
+                        getMessage("button.add.collection"),
+                        1
+                )));
+        inlineQueryResultArticle.setReplyMarkup(keyboardMarkup);
+
+        InputTextMessageContent inputTextMessageContent = new InputTextMessageContent();
+        inputTextMessageContent.setMessageText(foundCollection.getTitle());
+        inlineQueryResultArticle.setInputMessageContent(inputTextMessageContent);
+        return inlineQueryResultArticle;
+
     }
 
     @Override

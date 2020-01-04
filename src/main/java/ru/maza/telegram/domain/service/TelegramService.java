@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQuery
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import ru.maza.telegram.dto.CollectionCondensedDto;
+import ru.maza.telegram.dto.FoundCollection;
 import ru.maza.telegram.dto.buttons.Button;
 
 import java.util.List;
@@ -59,6 +60,8 @@ public interface TelegramService {
     AnswerInlineQuery getAnswerInlineQuery(Update update);
 
     InlineQueryResultArticle fillInlineQueryResultPhoto(CollectionCondensedDto collectionCondensedDto);
+
+    InlineQueryResultArticle fillInlineQueryResultPhoto(FoundCollection foundCollection);
 
     List<BotApiMethod> getTelegramMessage(Update update, InlineKeyboardMarkup keyboardMarkup, String text);
 }

@@ -21,13 +21,17 @@ public class CollectionClient {
 
     private final CollectionClientApi collectionClientApi;
 
-    @Cacheable(value = "collections", key = "#id")
+//    @Cacheable(value = "collections", key = "#id")
     public CollectionDto get(Long id) {
         return collectionClientApi.get(id);
     }
 
     public RestPageImpl<CollectionCondensedDto> getCollectionByUserId(Long userId, Pageable pageable) {
         return collectionClientApi.getCollectionByUserId(userId, pageable);
+    }
+
+    public CollectionDto getByImdbId(String imdbId){
+        return collectionClientApi.getByImdbId(imdbId);
     }
 
     public List<CollectionCondensedDto> search(String collectionName, Pageable pageable) {
