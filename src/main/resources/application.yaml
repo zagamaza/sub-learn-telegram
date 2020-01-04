@@ -16,6 +16,8 @@ sublearn:
     password:
   competition:
     url: http://ms-sublearn-competition:8080/api/competition
+  provider:
+    url: http://ms-sublearn-provider:8080
 
 notification:
   count: 5
