@@ -15,10 +15,9 @@ import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.buttons.Button;
 import ru.maza.telegram.dto.buttons.CancelButton;
 import ru.maza.telegram.dto.buttons.PageButton;
-import ru.maza.telegram.dto.buttons.competitions.AddFriendButton;
 import ru.maza.telegram.dto.buttons.competitions.MyCompetitionsButton;
-import ru.maza.telegram.dto.competition.CompetitionUserDto;
 import ru.maza.telegram.dto.competition.LeagueDto;
+import ru.maza.telegram.utils.EmojiUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +57,7 @@ public class LeagueServiceImpl implements LeagueService {
         fillEmojiToUserName(leagueDtos, page);
         String users = leagueDtos
                 .stream()
-                .map(u -> u.getUserName() + " - " + u.getExperience())
+                .map(u -> u.getUserName() + " - " + EmojiUtils.extractEmojiPercent(u.getExperience()))
                 .collect(Collectors.joining("\n\n"));
         EditMessageText editMessage = telegramService.getEditMessage(update);
         editMessage.setReplyMarkup(keyboardMarkup);
@@ -73,12 +72,27 @@ public class LeagueServiceImpl implements LeagueService {
         for (int i = 0; i < leagueDtos.size(); i++) {
             LeagueDto league = leagueDtos.get(i);
             league.setUserName(league.getUserName().replace("_null", ""));
-            if (page.getPage() == 0 && i == 0) {
-                league.setUserName("🥇 @" + league.getUserName());
-            } else if (page.getPage() == 0 && i == 1) {
-                league.setUserName("🥈 @" + league.getUserName());
-            } else if (page.getPage() == 0 && i == 2) {league.setUserName("🥉 @" + league.getUserName());} else {
-                league.setUserName("@" + league.getUserName());
+            int pageCount = page.getPage() * 10;
+            if (i == 0) {
+                if (page.getPage() == 0) {
+                    league.setUserName("🥇 @" + league.getUserName());
+                } else {
+                    league.setUserName(pageCount + 1 + i + ". @" + league.getUserName());
+                }
+            } else if (i == 1) {
+                if (pageCount == 0) {
+                    league.setUserName("🥈 @" + league.getUserName());
+                } else {
+                    league.setUserName(pageCount + 1 + i + ". @" + league.getUserName());
+                }
+            } else if (i == 2) {
+                if (pageCount == 0) {
+                    league.setUserName("🥉 @" + league.getUserName());
+                } else {
+                    league.setUserName(pageCount + 1 + i + ". @" + league.getUserName());
+                }
+            } else {
+                league.setUserName(pageCount + 1 + i + ". @" + league.getUserName());
             }
         }
     }

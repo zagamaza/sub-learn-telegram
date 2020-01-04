@@ -22,6 +22,7 @@ import ru.maza.telegram.dto.buttons.competitions.AddFriendButton;
 import ru.maza.telegram.dto.buttons.competitions.DeleteFriendButton;
 import ru.maza.telegram.dto.buttons.competitions.MyLeagueButton;
 import ru.maza.telegram.dto.competition.CompetitionUserDto;
+import ru.maza.telegram.utils.EmojiUtils;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -64,10 +65,10 @@ public class CompetitionServiceImpl implements CompetitionService {
         fillEmojiToUserName(competitionUsers, page);
         String users = competitionUsers
                 .stream()
-                .map(u -> u.getUserName() + " - " + u.getExperience())
+                .map(u -> u.getUserName() + " - " + EmojiUtils.extractEmojiPercent(u.getExperience()))
                 .collect(Collectors.joining("\n\n"));
         if (isEdit) {
-            EditMessageText editMessage = telegramService.getEditMessage(update);
+            EditMessageText editMessage     = telegramService.getEditMessage(update);
             editMessage.setReplyMarkup(keyboardMarkup);
             editMessage.setParseMode(null);
             editMessage.setText(getMessage("competitions.start.window", users));
@@ -86,10 +87,29 @@ public class CompetitionServiceImpl implements CompetitionService {
         for (int i = 0; i < competitionUsers.size(); i++) {
             CompetitionUserDto user = competitionUsers.get(i);
             user.setUserName(user.getUserName().replace("_null", ""));
-            if (page.getPage() == 0 && i == 0) {user.setUserName("🥇 @" + user.getUserName());}
-            else if (page.getPage() == 0 && i == 1) {user.setUserName("🥈 @" + user.getUserName());}
-            else if (page.getPage() == 0 && i == 2) {user.setUserName("🥉 @" + user.getUserName());}
-            else { user.setUserName("@" + user.getUserName()); }
+            int pageCount = page.getPage() * 10;
+            if (i == 0) {
+                if (page.getPage() == 0) {
+                    user.setUserName("🥇 @" + user.getUserName());
+                } else {
+                    user.setUserName(pageCount + 1 + i + ". @" + user.getUserName());
+                }
+            } else if (i == 1) {
+                if (pageCount == 0) {
+                    user.setUserName("🥈 @" + user.getUserName());
+                } else {
+                    user.setUserName(pageCount + 1 + i + ". @" + user.getUserName());
+                }
+            } else if (i == 2) {
+                if (pageCount == 0) {
+                    user.setUserName("🥉 @" + user.getUserName());
+                } else {
+                    user.setUserName(pageCount + 1 + i + ". @" + user.getUserName());
+                }
+            } else {
+                user.setUserName(pageCount + 1 + i + ". @" + user.getUserName());
+            }
+
         }
     }
 
