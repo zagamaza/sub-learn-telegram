@@ -108,8 +108,13 @@ public class BotServiceImpl implements BotService {
             buttons.add(new SupportButton(supportId - 1, getMessage("button.support.back"), 2));
         }
         if (supportId != 14) {
-            buttons.add(new SupportButton(supportId + 1, getMessage("button.support.next"), 2));
+            buttons.add(new SupportButton(supportId + 1, getMessage("button.support.next"), 1));
         }
+        buttons.add(new CancelButton(
+                "Я всё понял",
+                new CancelCD(CancelCD.class.getSimpleName(), Constant.START_NOT_EDIT),
+                2
+        ));
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);
 
         sendPhoto.setReplyMarkup(keyboardMarkup);

@@ -18,7 +18,7 @@ sublearn:
     url: http://ms-sublearn-competition:8080/api/competition
 
 notification:
-  count: 1
+  count: 5
 
 spring:
   redis:
@@ -30,3 +30,11 @@ spring:
     port: 5672
     username: guest
     password: guest
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 60000
+        readTimeout: 60000
+        loggerLevel: basic

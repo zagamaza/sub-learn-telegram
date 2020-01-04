@@ -12,5 +12,6 @@ public final class Constant {
     public static final String START = "/start";
     public static final String ADD_FRIEND = "/add_friend";
     public static final String DELETE_FRIEND = "/delete_friend";
+    public static final String START_NOT_EDIT = "/start_not_edit";
 
 }

@@ -208,10 +208,12 @@ public class BotController extends TelegramLongPollingBot {
                 send(nextWord);
             } else if (callbackData instanceof CancelCD) {
                 CancelCD cancelCD = (CancelCD)callbackData;
-                if ("/start".equals(cancelCD.getCommand())) {
+                if (Constant.START.equals(cancelCD.getCommand())) {
                     send(botInfraService.getStartWindow(update, true));
                 } else if (Constant.MY_COLLECTION.equals(cancelCD.getCommand())) {
                     send(collectionInfraService.getAllCollection(userDto, update));
+                }else if (Constant.START_NOT_EDIT.equals(cancelCD.getCommand())) {
+                    send(botInfraService.getStartWindow(update, false));
                 }
             } else if (callbackData instanceof TranscriptionCD) {
                 TranscriptionCD transcriptionCD = (TranscriptionCD)callbackData;
@@ -279,7 +281,7 @@ public class BotController extends TelegramLongPollingBot {
                 send(competitionInfraService.wantDeleteFriend(userDto, update));
             } else if (callbackData instanceof AddSearchCollectionCD) {
                 AddSearchCollectionCD searchCollectionCD = (AddSearchCollectionCD)callbackData;
-                send(collectionInfraService.addCollection(userDto, searchCollectionCD.getClctnId(), update));
+                send(collectionInfraService.addCollection(userDto, searchCollectionCD, update));
             } else if (callbackData instanceof DelCollectionCD) {
                 DelCollectionCD delCollectionCD = (DelCollectionCD)callbackData;
                 send(collectionInfraService.deleteCollection(userDto, delCollectionCD.getCollectionId(), update));
@@ -347,11 +349,11 @@ public class BotController extends TelegramLongPollingBot {
     }
 
     /**
-     * Метод sendPlanMessages, каждые 15 минут ходит в микросервис back за уведомлениями типа
+     * Метод sendPlanMessages, каждые 5 минут ходит в микросервис back за уведомлениями типа
      * {@link ru.maza.telegram.dto.NotificationType#MESSAGE} для пользователя,
      * если находит -> отправляет уведомление
      */
-    @Scheduled(cron = "* */15 * * * *")
+    @Scheduled(cron = "* */5 * * * *")
     private void sendPlanMessages() {
         List<BotApiMethod> notifications = notificationInfraService.getTextNotifications();
         for (BotApiMethod messageBotApiMethod : notifications) {
