@@ -47,6 +47,7 @@ import ru.maza.telegram.dto.callbackData.MyLeagueCD;
 import ru.maza.telegram.dto.callbackData.MySettingsCD;
 import ru.maza.telegram.dto.callbackData.MyTrialsCD;
 import ru.maza.telegram.dto.callbackData.PageCD;
+import ru.maza.telegram.dto.callbackData.PageSeasonCD;
 import ru.maza.telegram.dto.callbackData.PageSeriesCD;
 import ru.maza.telegram.dto.callbackData.ScheduleCD;
 import ru.maza.telegram.dto.callbackData.ShowAllTrCD;
@@ -181,7 +182,7 @@ public class BotController extends TelegramLongPollingBot {
         }
         if (update.hasCallbackQuery()) {
             AnswerCallbackQuery answerCallback = notificationInfraService.getAnswerCallback(update);
-            if (answerCallback!=null){
+            if (answerCallback != null) {
                 send(answerCallback);
                 return;
             }
@@ -212,7 +213,7 @@ public class BotController extends TelegramLongPollingBot {
                     send(botInfraService.getStartWindow(update, true));
                 } else if (Constant.MY_COLLECTION.equals(cancelCD.getCommand())) {
                     send(collectionInfraService.getAllCollection(userDto, update));
-                }else if (Constant.START_NOT_EDIT.equals(cancelCD.getCommand())) {
+                } else if (Constant.START_NOT_EDIT.equals(cancelCD.getCommand())) {
                     send(botInfraService.getStartWindow(update, false));
                 }
             } else if (callbackData instanceof TranscriptionCD) {
@@ -319,6 +320,9 @@ public class BotController extends TelegramLongPollingBot {
             } else if (callbackData instanceof PageSeriesCD) {
                 PageSeriesCD pageSeriesCD = (PageSeriesCD)callbackData;
                 send(episodeInfraService.getSerialsByPage(userDto, pageSeriesCD, update));
+            } else if (callbackData instanceof PageSeasonCD) {
+                PageSeasonCD pageSeasonCD = (PageSeasonCD)callbackData;
+                send(episodeInfraService.chooseSerialByPage(pageSeasonCD, userDto, update));
             } else if (callbackData instanceof AddFileCD) {
                 AddFileCD addFileCD = (AddFileCD)callbackData;
                 send(episodeInfraService.addFile(addFileCD.getEpisodeId(), userDto, update));

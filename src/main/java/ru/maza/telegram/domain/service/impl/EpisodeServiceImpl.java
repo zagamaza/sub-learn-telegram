@@ -25,6 +25,8 @@ import ru.maza.telegram.dto.buttons.ChooseSeriesButton;
 import ru.maza.telegram.dto.buttons.ChooseStartTrialButton;
 import ru.maza.telegram.dto.buttons.DeleteCollectionButton;
 import ru.maza.telegram.dto.buttons.DeleteEpisodeButton;
+import ru.maza.telegram.dto.buttons.PageButton;
+import ru.maza.telegram.dto.buttons.PageSeasonButton;
 import ru.maza.telegram.dto.buttons.PageSerialButton;
 import ru.maza.telegram.dto.callbackData.CancelCD;
 import ru.maza.telegram.utils.EmojiUtils;
@@ -36,6 +38,8 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
+import static ru.maza.telegram.utils.EmojiUtils.ALLOW_LEFT;
+import static ru.maza.telegram.utils.EmojiUtils.ALLOW_RIGHT;
 
 @Service
 @RequiredArgsConstructor
@@ -73,7 +77,7 @@ public class EpisodeServiceImpl implements EpisodeService {
 
     @Override
     public List<BotApiMethod> getMessageChooseSerial(
-            List<Integer> seasons,
+            Page page, List<Integer> seasons,
             CollectionDto collectionDto,
             Update update
     ) {
@@ -86,8 +90,17 @@ public class EpisodeServiceImpl implements EpisodeService {
                                            )
                                       )
                                       .collect(Collectors.toList());
-        buttons.add(new DeleteCollectionButton(collectionDto.getId(), getMessage("button.delete.collection"), 2));
-        buttons.add(new CancelButton(getMessage("button.cancel.back"), Constant.MY_COLLECTION, 1));
+        buttons.add(new DeleteCollectionButton(collectionDto.getId(), getMessage("button.delete.collection"), 1));
+
+        if (page.getPage() != 0) {
+            buttons.add(new PageSeasonButton(collectionDto.getId(),page.getPage() - 1, true, ALLOW_LEFT, 2));
+        }
+        buttons.add(new CancelButton(getMessage("button.cancel.back"), Constant.MY_COLLECTION, 2));
+
+        if ((page.getPage() + 1) * 10 < page.getCount()) {
+            buttons.add(new PageSeasonButton(collectionDto.getId(),page.getPage() + 1, false, ALLOW_RIGHT, 1));
+        }
+
         if (!collectionDto.isShared()) {
             buttons.add(new AddPersonalCollectionsButton(
                     collectionDto.getId(),
