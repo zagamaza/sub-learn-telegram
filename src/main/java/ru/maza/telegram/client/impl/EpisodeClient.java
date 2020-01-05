@@ -13,8 +13,6 @@ import ru.maza.telegram.client.model.RestPageImpl;
 import ru.maza.telegram.dto.EpisodeDto;
 import ru.maza.telegram.dto.EpisodeRequest;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class EpisodeClient {
@@ -38,8 +36,8 @@ public class EpisodeClient {
         return episodeClientApi.getLearnedPercent(id, userId);
     }
 
-    public List<Integer> getSeasonsByCollectionId(Long collectionId) {
-        return episodeClientApi.getSeasonsByCollectionId(collectionId);
+    public RestPageImpl<Integer> getSeasonsByCollectionId(Long collectionId, Pageable pageable) {
+        return episodeClientApi.getSeasonsByCollectionId(collectionId, pageable);
     }
 
     public RestPageImpl<EpisodeDto> getByCollectionIdAndSeason(Long collectionId, Integer season, Pageable pageable) {
