@@ -7,20 +7,22 @@ import lombok.Setter;
 @Getter
 @Setter
 @Data
-public class LearnedWordCD extends CallbackData {
+public class LeardWdCD extends CallbackData {
 
     private Long twId;
     private Long tlId;
     private Long wdId;
+    private Long isK;
 
-    public LearnedWordCD(Long twId, Long tlId, Long wdId) {
-        super(LearnedWordCD.class.getSimpleName());
+    public LeardWdCD(Long twId, Long tlId, Long wdId, Long isK) {
+        super(LeardWdCD.class.getSimpleName());
         this.twId = twId;
         this.tlId = tlId;
         this.wdId = wdId;
+        this.isK = isK;
     }
 
-    public LearnedWordCD() {
+    public LeardWdCD() {
         super(null);
     }
 

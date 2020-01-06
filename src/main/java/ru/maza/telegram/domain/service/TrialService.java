@@ -16,6 +16,8 @@ public interface TrialService {
 
     BotApiMethod checkTranslation(CTlteCD chooseTranslateCD, Update update);
 
+    BotApiMethod setRightTranslation(Long wordId, Update update);
+
     List<BotApiMethod> fillMessageTranslateOption(
             List<Boolean> trialWordStatus,
             TranslateOptionDto translateOptionDto,

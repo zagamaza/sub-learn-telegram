@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
@@ -39,7 +38,7 @@ import ru.maza.telegram.dto.callbackData.ChsSeriesCD;
 import ru.maza.telegram.dto.callbackData.DelCollectionCD;
 import ru.maza.telegram.dto.callbackData.DelEpisodeCD;
 import ru.maza.telegram.dto.callbackData.DeleteFriendCD;
-import ru.maza.telegram.dto.callbackData.LearnedWordCD;
+import ru.maza.telegram.dto.callbackData.LeardWdCD;
 import ru.maza.telegram.dto.callbackData.LearnedWordCountCD;
 import ru.maza.telegram.dto.callbackData.MyCollectionsCD;
 import ru.maza.telegram.dto.callbackData.MyCompetitionsCD;
@@ -300,16 +299,17 @@ public class BotController extends TelegramLongPollingBot {
                 } else if (pageCD.getEntity().equals("league")) {
                     send(leagueInfraService.getLeagueUsersByPage(userDto, pageCD, update));
                 }
-            } else if (callbackData instanceof LearnedWordCD) {
-                LearnedWordCD learnedWordCD = (LearnedWordCD)callbackData;
-                send(trialInfraService.getAlertWithAllTranslates(learnedWordCD.getWdId(), update));
+            } else if (callbackData instanceof LeardWdCD) {
+                LeardWdCD leardWdCD = (LeardWdCD)callbackData;
+                send(trialInfraService.setRightWord(leardWdCD.getWdId(), update));
+                Thread.sleep(200);
+                send(trialInfraService.getAlertWithAllTranslates(leardWdCD.getWdId(), update));
                 List<BotApiMethod> botApiMethods = trialInfraService.saveLearnedTrialWordAndGetNextWord(
-                        learnedWordCD.getTwId(),
-                        update
+                        leardWdCD.getTwId(), leardWdCD.getIsK() == 1, update
                 );
                 send(botApiMethods);
                 if (botApiMethods.get(0) instanceof AnswerCallbackQuery) {
-                    send(trialInfraService.repeatTrial(learnedWordCD.getTlId(), userDto, update));
+                    send(trialInfraService.repeatTrial(leardWdCD.getTlId(), userDto, update));
                 }
             } else if (callbackData instanceof ChooseSeasonCD) {
                 ChooseSeasonCD chooseSeasonCD = (ChooseSeasonCD)callbackData;
@@ -357,22 +357,22 @@ public class BotController extends TelegramLongPollingBot {
      * {@link ru.maza.telegram.dto.NotificationType#MESSAGE} для пользователя,
      * если находит -> отправляет уведомление
      */
-    @Scheduled(cron = "* */5 * * * *")
-    private void sendPlanMessages() {
-        List<BotApiMethod> notifications = notificationInfraService.getTextNotifications();
-        for (BotApiMethod messageBotApiMethod : notifications) {
-            send(messageBotApiMethod);
-        }
-    }
-
-    /**
-     * Метод updateCallbackNotification, каждые день в 17:00 ходит в микросервис back за уведомлениями типа
-     * {@link ru.maza.telegram.dto.NotificationType#CALLBACK} для пользователя
-     */
-    @Scheduled(cron = "0 0 17 * * ?")
-    private void updateCallbackNotification() {
-        notificationInfraService.updateCallbackNotifications();
-    }
+//    @Scheduled(cron = "0 */5 * * * *")
+//    private void sendPlanMessages() {
+//        List<BotApiMethod> notifications = notificationInfraService.getTextNotifications();
+//        for (BotApiMethod messageBotApiMethod : notifications) {
+//            send(messageBotApiMethod);
+//        }
+//    }
+//
+//    /**
+//     * Метод updateCallbackNotification, каждые день в 17:00 ходит в микросервис back за уведомлениями типа
+//     * {@link ru.maza.telegram.dto.NotificationType#CALLBACK} для пользователя
+//     */
+//    @Scheduled(cron = "0 0 17 * * ?")
+//    private void updateCallbackNotification() {
+//        notificationInfraService.updateCallbackNotifications();
+//    }
 
     private void send(BotApiMethod apiMethod) {
         try {

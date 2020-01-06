@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.maza.telegram.dto.TrialWordDto;
 import ru.maza.telegram.dto.TrialWordRequest;
 
@@ -27,7 +28,10 @@ public interface TrialWordClientApi {
     TrialWordDto updateTrialWordAndSaveUserWord(@RequestBody TrialWordRequest trialWordRequest);
 
     @GetMapping("/trial_words/{id}/learned")
-    TrialWordDto updateTrialWordAndSaveLearnedUserWord(@PathVariable ("id") Long id);
+    TrialWordDto updateTrialWordAndSaveLearnedUserWord(
+            @PathVariable("id") Long id,
+            @RequestParam("isRight") Boolean isRight
+    );
 
     @DeleteMapping("/trial_words/{id}")
     void delete(@PathVariable("id") Long id);
