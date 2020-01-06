@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
@@ -357,22 +358,22 @@ public class BotController extends TelegramLongPollingBot {
      * {@link ru.maza.telegram.dto.NotificationType#MESSAGE} для пользователя,
      * если находит -> отправляет уведомление
      */
-//    @Scheduled(cron = "0 */5 * * * *")
-//    private void sendPlanMessages() {
-//        List<BotApiMethod> notifications = notificationInfraService.getTextNotifications();
-//        for (BotApiMethod messageBotApiMethod : notifications) {
-//            send(messageBotApiMethod);
-//        }
-//    }
-//
-//    /**
-//     * Метод updateCallbackNotification, каждые день в 17:00 ходит в микросервис back за уведомлениями типа
-//     * {@link ru.maza.telegram.dto.NotificationType#CALLBACK} для пользователя
-//     */
-//    @Scheduled(cron = "0 0 17 * * ?")
-//    private void updateCallbackNotification() {
-//        notificationInfraService.updateCallbackNotifications();
-//    }
+    @Scheduled(cron = "0 */5 * * * *")
+    private void sendPlanMessages() {
+        List<BotApiMethod> notifications = notificationInfraService.getTextNotifications();
+        for (BotApiMethod messageBotApiMethod : notifications) {
+            send(messageBotApiMethod);
+        }
+    }
+
+    /**
+     * Метод updateCallbackNotification, каждые день в 17:00 ходит в микросервис back за уведомлениями типа
+     * {@link ru.maza.telegram.dto.NotificationType#CALLBACK} для пользователя
+     */
+    @Scheduled(cron = "0 0 17 * * ?")
+    private void updateCallbackNotification() {
+        notificationInfraService.updateCallbackNotifications();
+    }
 
     private void send(BotApiMethod apiMethod) {
         try {
