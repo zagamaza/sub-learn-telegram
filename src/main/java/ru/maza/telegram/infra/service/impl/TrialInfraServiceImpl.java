@@ -122,14 +122,19 @@ public class TrialInfraServiceImpl implements TrialInfraService {
     }
 
     @Override
-    public List<BotApiMethod> saveLearnedTrialWordAndGetNextWord(Long trialWordId, Update update) {
-        TrialWordDto trialWordDto = trialWordClientApi.updateTrialWordAndSaveLearnedUserWord(trialWordId);
+    public List<BotApiMethod> saveLearnedTrialWordAndGetNextWord(Long trialWordId, Boolean isRight, Update update) {
+        TrialWordDto trialWordDto = trialWordClientApi.updateTrialWordAndSaveLearnedUserWord(trialWordId, isRight);
         if (trialWordDto.isLastWord()) {
             TrialDto trialDto = trialClientApi.get(trialWordDto.getTrialDto().getId());
             List<Boolean> trialWordStatus = trialClientApi.getTrialWordStatusByTrialId(trialDto.getId());
             return trialService.finishTrial(trialWordStatus, trialDto, update);
         }
         return getNextWord(trialWordDto.getTrialDto().getId(), update);
+    }
+
+    @Override
+    public BotApiMethod setRightWord(Long wdId, Update update) {
+        return trialService.setRightTranslation(wdId,update);
     }
 
 }

@@ -31,6 +31,8 @@ public interface TrialInfraService {
 
     List<BotApiMethod> repeatTrial(Long tlId, UserDto userDto, Update update);
 
-    List<BotApiMethod> saveLearnedTrialWordAndGetNextWord(Long twId, Update update);
+    List<BotApiMethod> saveLearnedTrialWordAndGetNextWord(Long trialWordId, Boolean isRight, Update update);
+
+    BotApiMethod setRightWord(Long wdId, Update update);
 
 }
