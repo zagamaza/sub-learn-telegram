@@ -14,8 +14,6 @@ import ru.maza.telegram.client.model.RestPageImpl;
 import ru.maza.telegram.dto.EpisodeDto;
 import ru.maza.telegram.dto.EpisodeRequest;
 
-import java.util.List;
-
 @FeignClient(contextId = "episodes", name = "episodes", url = "${sublearn.back.url}")
 public interface EpisodeClientApi {
 
@@ -29,7 +27,7 @@ public interface EpisodeClientApi {
     Integer getLearnedPercent(@PathVariable("id") Long id, @PathVariable("userId") Long userId);
 
     @GetMapping("/episodes/collections/{collectionId}/seasons")
-    List<Integer> getSeasonsByCollectionId(@PathVariable("collectionId") Long collectionId);
+    RestPageImpl<Integer> getSeasonsByCollectionId(@PathVariable("collectionId") Long collectionId, Pageable pageable);
 
     @GetMapping("/episodes/collections/{collectionId}/season")
     RestPageImpl<EpisodeDto> getByCollectionIdAndSeason(

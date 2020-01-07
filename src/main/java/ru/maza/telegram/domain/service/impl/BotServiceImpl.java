@@ -12,6 +12,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.maza.telegram.domain.service.BotService;
 import ru.maza.telegram.domain.service.TelegramService;
+import ru.maza.telegram.dto.Constant;
+import ru.maza.telegram.dto.NotificationDto;
 import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.WordDto;
 import ru.maza.telegram.dto.buttons.AddFileButton;
@@ -21,6 +23,7 @@ import ru.maza.telegram.dto.buttons.MyCollectionsButton;
 import ru.maza.telegram.dto.buttons.MySettingsButton;
 import ru.maza.telegram.dto.buttons.MyTrialsButton;
 import ru.maza.telegram.dto.buttons.SupportButton;
+import ru.maza.telegram.dto.buttons.competitions.MyCompetitionsButton;
 import ru.maza.telegram.dto.callbackData.CancelCD;
 
 import java.io.InputStream;
@@ -28,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +50,7 @@ public class BotServiceImpl implements BotService {
                 translate.getMainTranslation() != null
                         ? translate.getMainTranslation()
                         : translate.getTranslation().get(0).getTranslate().get(0)
-                );
+        );
         sendMessage.setText(ss);
         return Collections.singletonList(sendMessage);
     }
@@ -64,6 +68,7 @@ public class BotServiceImpl implements BotService {
         List<Button> buttons = new ArrayList<>();
         buttons.add(new MyCollectionsButton(getMessage("button.my.collections")));
         buttons.add(new MyTrialsButton(getMessage("button.my.trials")));
+        buttons.add(new MyCompetitionsButton(getMessage("button.my.competitions")));
         buttons.add(new MySettingsButton(getMessage("button.my.settings")));
         sendMessage.setReplyMarkup(telegramService.getKeyboardMarkup2(buttons));
         return Collections.singletonList(sendMessage);
@@ -76,6 +81,7 @@ public class BotServiceImpl implements BotService {
         List<Button> buttons = new ArrayList<>();
         buttons.add(new MyCollectionsButton(getMessage("button.my.collections")));
         buttons.add(new MyTrialsButton(getMessage("button.my.trials")));
+        buttons.add(new MyCompetitionsButton(getMessage("button.my.competitions")));
         buttons.add(new MySettingsButton(getMessage("button.my.settings")));
         editMessageText.setReplyMarkup(telegramService.getKeyboardMarkup2(buttons));
         return Collections.singletonList(editMessageText);
@@ -102,8 +108,13 @@ public class BotServiceImpl implements BotService {
             buttons.add(new SupportButton(supportId - 1, getMessage("button.support.back"), 2));
         }
         if (supportId != 14) {
-            buttons.add(new SupportButton(supportId + 1, getMessage("button.support.next"), 2));
+            buttons.add(new SupportButton(supportId + 1, getMessage("button.support.next"), 1));
         }
+        buttons.add(new CancelButton(
+                "Я всё понял",
+                new CancelCD(CancelCD.class.getSimpleName(), Constant.START_NOT_EDIT),
+                2
+        ));
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);
 
         sendPhoto.setReplyMarkup(keyboardMarkup);
@@ -119,12 +130,29 @@ public class BotServiceImpl implements BotService {
         buttons.add(new AddFileButton(commandId, "Добавить файл", 1));
         buttons.add(new CancelButton(
                 getMessage("button.cancel"),
-                new CancelCD(CancelCD.class.getSimpleName(), "/start"),
+                new CancelCD(CancelCD.class.getSimpleName(), Constant.START),
                 2
         ));
         InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(buttons);
         sendMessage.setReplyMarkup(keyboardMarkup);
         return Collections.singletonList(sendMessage);
+    }
+
+    @Override
+    public List<BotApiMethod> getMessageNotifications(List<NotificationDto> content) {
+        return content
+                .stream()
+                .map(n -> {
+                    SendMessage sendMessage = new SendMessage(n.getUserDto().getTelegramId(), n.getText());
+                    sendMessage.setParseMode("Markdown");
+                    InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(List.of(new CancelButton(
+                            getMessage("button.cancel"),
+                            Constant.START,
+                            1
+                    )));
+                    return sendMessage.setReplyMarkup(keyboardMarkup);
+                })
+                .collect(Collectors.toList());
     }
 
     private String getMessage(String key, Object... args) {

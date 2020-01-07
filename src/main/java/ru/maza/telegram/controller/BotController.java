@@ -7,20 +7,24 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.maza.telegram.client.UserActionClient;
 import ru.maza.telegram.domain.service.TelegramService;
+import ru.maza.telegram.dto.ActionType;
 import ru.maza.telegram.dto.Constant;
+import ru.maza.telegram.dto.UserActionDto;
 import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.callbackData.AddCollectionCD;
 import ru.maza.telegram.dto.callbackData.AddFileCD;
+import ru.maza.telegram.dto.callbackData.AddFriendCD;
 import ru.maza.telegram.dto.callbackData.AddPersonalCollectionCD;
 import ru.maza.telegram.dto.callbackData.AddSearchCollectionCD;
 import ru.maza.telegram.dto.callbackData.CTlteCD;
@@ -34,12 +38,16 @@ import ru.maza.telegram.dto.callbackData.ChooseTrialCD;
 import ru.maza.telegram.dto.callbackData.ChsSeriesCD;
 import ru.maza.telegram.dto.callbackData.DelCollectionCD;
 import ru.maza.telegram.dto.callbackData.DelEpisodeCD;
-import ru.maza.telegram.dto.callbackData.LearnedWordCD;
+import ru.maza.telegram.dto.callbackData.DeleteFriendCD;
+import ru.maza.telegram.dto.callbackData.LeardWdCD;
 import ru.maza.telegram.dto.callbackData.LearnedWordCountCD;
 import ru.maza.telegram.dto.callbackData.MyCollectionsCD;
+import ru.maza.telegram.dto.callbackData.MyCompetitionsCD;
+import ru.maza.telegram.dto.callbackData.MyLeagueCD;
 import ru.maza.telegram.dto.callbackData.MySettingsCD;
 import ru.maza.telegram.dto.callbackData.MyTrialsCD;
 import ru.maza.telegram.dto.callbackData.PageCD;
+import ru.maza.telegram.dto.callbackData.PageSeasonCD;
 import ru.maza.telegram.dto.callbackData.PageSeriesCD;
 import ru.maza.telegram.dto.callbackData.ScheduleCD;
 import ru.maza.telegram.dto.callbackData.ShowAllTrCD;
@@ -52,8 +60,11 @@ import ru.maza.telegram.infra.service.BotInfraService;
 import ru.maza.telegram.infra.service.CallbackInfraService;
 import ru.maza.telegram.infra.service.CollectionInfraService;
 import ru.maza.telegram.infra.service.CommandInfraService;
+import ru.maza.telegram.infra.service.CompetitionInfraService;
 import ru.maza.telegram.infra.service.DocumentInfraService;
 import ru.maza.telegram.infra.service.EpisodeInfraService;
+import ru.maza.telegram.infra.service.LeagueInfraService;
+import ru.maza.telegram.infra.service.NotificationInfraService;
 import ru.maza.telegram.infra.service.TextInfraService;
 import ru.maza.telegram.infra.service.TrialInfraService;
 import ru.maza.telegram.infra.service.UserSettingInfraService;
@@ -62,7 +73,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -82,6 +92,11 @@ public class BotController extends TelegramLongPollingBot {
     private final EpisodeInfraService episodeInfraService;
     private final TrialInfraService trialInfraService;
     private final UserSettingInfraService userSettingInfraService;
+    private final CompetitionInfraService competitionInfraService;
+    private final LeagueInfraService leagueInfraService;
+    private final NotificationInfraService notificationInfraService;
+
+    private final UserActionClient userActionClient;
 
     @Value("${tg.token}")
     private String token;
@@ -109,6 +124,8 @@ public class BotController extends TelegramLongPollingBot {
             Command command = commandInfraService.get(userDto.getId());
             commandInfraService.remove(userDto.getId());
             if (command != null) {
+                userActionClient.create(new UserActionDto(command.getTextCommands(), userDto.getId(), ActionType.COMMAND));
+
                 switch (command.getTextCommands()) {
                     case (Constant.NEW_COLLECTION):
                         send(collectionInfraService.createCollection(userDto, update));
@@ -119,7 +136,7 @@ public class BotController extends TelegramLongPollingBot {
                     case (Constant.ADD_FILE):
                         List<BotApiMethod> botApiMethods = documentInfraService.checkDocument(userDto, command.getCommandId(), update);
                         send(botApiMethods);
-                        if (isEmpty(botApiMethods)) send(saveFile(update, command.getCommandId()));
+                        if (isEmpty(botApiMethods)) { send(saveFile(update, command.getCommandId())); }
                         break;
                     case (Constant.ADD_SEASON):
                         send(episodeInfraService.addSeason(command.getCommandId(), userDto, update));
@@ -127,11 +144,21 @@ public class BotController extends TelegramLongPollingBot {
                     case (Constant.ADD_SERIAL):
                         send(episodeInfraService.addSeries(command.getCommandId(), userDto, update));
                         break;
+                    case (Constant.ADD_FRIEND):
+                        send(competitionInfraService.addFriend(userDto, update));
+                        send(competitionInfraService.getCompetitionsWindow(userDto, update, false));
+                        break;
+                    case (Constant.DELETE_FRIEND):
+                        send(competitionInfraService.deleteFriend(userDto, update));
+                        send(competitionInfraService.getCompetitionsWindow(userDto, update, false));
+                        break;
                 }
             }
         }
 
         if (update.hasMessage() && update.getMessage().hasText()) {
+            userActionClient.create(new UserActionDto(update.getMessage().getText(), userDto.getId(), ActionType.TEXT));
+
             String answer = telegramService.getTextMessage(update).toLowerCase();
             switch (answer) {
                 case ("/start"):
@@ -154,14 +181,21 @@ public class BotController extends TelegramLongPollingBot {
 
         }
         if (update.hasCallbackQuery()) {
-            CallbackData callbackData = callbackInfraService.getCallbackData(update.getCallbackQuery().getData());
+            AnswerCallbackQuery answerCallback = notificationInfraService.getAnswerCallback(update);
+            if (answerCallback != null) {
+                send(answerCallback);
+                return;
+            }
+            String data = update.getCallbackQuery().getData();
+            CallbackData callbackData = callbackInfraService.getCallbackData(data);
+            userActionClient.create(new UserActionDto(callbackData.getCz(), userDto.getId(), ActionType.CALLBACK));
 
             if (callbackData instanceof ChooseCollectionCD) {
                 ChooseCollectionCD chooseCollection = (ChooseCollectionCD)callbackData;
                 send(collectionInfraService.chooseCollection(chooseCollection.getCltnId(), userDto, update));
             } else if (callbackData instanceof CTlteCD) {
                 CTlteCD chooseTranslateCD = (CTlteCD)callbackData;
-                send(trialInfraService.saveAndCheckResult(chooseTranslateCD, update));
+                send(trialInfraService.saveAndCheckResult(chooseTranslateCD, userDto, update));
                 if (!chooseTranslateCD.getRw().equals(chooseTranslateCD.getWd()) ||
                         userDto.getUserSettingDto().isShowAllTranslate()) {
                     Thread.sleep(100);
@@ -175,10 +209,12 @@ public class BotController extends TelegramLongPollingBot {
                 send(nextWord);
             } else if (callbackData instanceof CancelCD) {
                 CancelCD cancelCD = (CancelCD)callbackData;
-                if ("/start".equals(cancelCD.getCommand())) {
+                if (Constant.START.equals(cancelCD.getCommand())) {
                     send(botInfraService.getStartWindow(update, true));
                 } else if (Constant.MY_COLLECTION.equals(cancelCD.getCommand())) {
                     send(collectionInfraService.getAllCollection(userDto, update));
+                } else if (Constant.START_NOT_EDIT.equals(cancelCD.getCommand())) {
+                    send(botInfraService.getStartWindow(update, false));
                 }
             } else if (callbackData instanceof TranscriptionCD) {
                 TranscriptionCD transcriptionCD = (TranscriptionCD)callbackData;
@@ -235,9 +271,18 @@ public class BotController extends TelegramLongPollingBot {
                 send(userSettingInfraService.updateLearnedWordCount(learnedWordCountCD.getLearnedCount(), userDto, update));
             }
 
-            else if (callbackData instanceof AddSearchCollectionCD) {
+            /**Страница рейтинга*/
+            else if (callbackData instanceof MyCompetitionsCD) {
+                send(competitionInfraService.getCompetitionsWindow(userDto, update, true));
+            } else if (callbackData instanceof AddFriendCD) {
+                send(competitionInfraService.wantAddFriend(userDto, update));
+            } else if (callbackData instanceof MyLeagueCD) {
+                send(leagueInfraService.getLeagueUsersWindow(userDto, update));
+            } else if (callbackData instanceof DeleteFriendCD) {
+                send(competitionInfraService.wantDeleteFriend(userDto, update));
+            } else if (callbackData instanceof AddSearchCollectionCD) {
                 AddSearchCollectionCD searchCollectionCD = (AddSearchCollectionCD)callbackData;
-                send(collectionInfraService.addCollection(userDto, searchCollectionCD.getClctnId(), update));
+                send(collectionInfraService.addCollection(userDto, searchCollectionCD, update));
             } else if (callbackData instanceof DelCollectionCD) {
                 DelCollectionCD delCollectionCD = (DelCollectionCD)callbackData;
                 send(collectionInfraService.deleteCollection(userDto, delCollectionCD.getCollectionId(), update));
@@ -250,17 +295,22 @@ public class BotController extends TelegramLongPollingBot {
                     send(collectionInfraService.getCollectionByPage(userDto, pageCD, update));
                 } else if (pageCD.getEntity().equals("trial")) {
                     send(trialInfraService.getTrialsByPage(userDto, pageCD, update));
+                } else if (pageCD.getEntity().equals("friend")) {
+                    send(competitionInfraService.getFriendsByPage(userDto, pageCD, update));
+                } else if (pageCD.getEntity().equals("league")) {
+                    send(leagueInfraService.getLeagueUsersByPage(userDto, pageCD, update));
                 }
-            } else if (callbackData instanceof LearnedWordCD) {
-                LearnedWordCD learnedWordCD = (LearnedWordCD)callbackData;
-                send(trialInfraService.getAlertWithAllTranslates(learnedWordCD.getWdId(), update));
+            } else if (callbackData instanceof LeardWdCD) {
+                LeardWdCD leardWdCD = (LeardWdCD)callbackData;
+                send(trialInfraService.setRightWord(leardWdCD.getWdId(), update));
+                Thread.sleep(200);
+                send(trialInfraService.getAlertWithAllTranslates(leardWdCD.getWdId(), update));
                 List<BotApiMethod> botApiMethods = trialInfraService.saveLearnedTrialWordAndGetNextWord(
-                        learnedWordCD.getTwId(),
-                        update
+                        leardWdCD.getTwId(), leardWdCD.getIsK() == 1, update
                 );
                 send(botApiMethods);
                 if (botApiMethods.get(0) instanceof AnswerCallbackQuery) {
-                    send(trialInfraService.repeatTrial(learnedWordCD.getTlId(), userDto, update));
+                    send(trialInfraService.repeatTrial(leardWdCD.getTlId(), userDto, update));
                 }
             } else if (callbackData instanceof ChooseSeasonCD) {
                 ChooseSeasonCD chooseSeasonCD = (ChooseSeasonCD)callbackData;
@@ -271,6 +321,9 @@ public class BotController extends TelegramLongPollingBot {
             } else if (callbackData instanceof PageSeriesCD) {
                 PageSeriesCD pageSeriesCD = (PageSeriesCD)callbackData;
                 send(episodeInfraService.getSerialsByPage(userDto, pageSeriesCD, update));
+            } else if (callbackData instanceof PageSeasonCD) {
+                PageSeasonCD pageSeasonCD = (PageSeasonCD)callbackData;
+                send(episodeInfraService.chooseSerialByPage(pageSeasonCD, userDto, update));
             } else if (callbackData instanceof AddFileCD) {
                 AddFileCD addFileCD = (AddFileCD)callbackData;
                 send(episodeInfraService.addFile(addFileCD.getEpisodeId(), userDto, update));
@@ -293,28 +346,33 @@ public class BotController extends TelegramLongPollingBot {
 //                }
         }
         if (update.hasInlineQuery()) {
+            String query = update.getInlineQuery().getQuery();
+            userActionClient.create(new UserActionDto(query, userDto.getId(), ActionType.INLINE_QUERY));
             send(callbackInfraService.searchCollection(update));
         }
 
     }
 
     /**
-     * Метод @Scheduled, проверяет каждый день в 17:00 должен ли кто нибудь завтра сдать книную,
-     * если находит таких - > отправляет напоминание
+     * Метод sendPlanMessages, каждые 5 минут ходит в микросервис back за уведомлениями типа
+     * {@link ru.maza.telegram.dto.NotificationType#MESSAGE} для пользователя,
+     * если находит -> отправляет уведомление
+     */
+    @Scheduled(cron = "0 */5 * * * *")
+    private void sendPlanMessages() {
+        List<BotApiMethod> notifications = notificationInfraService.getTextNotifications();
+        for (BotApiMethod messageBotApiMethod : notifications) {
+            send(messageBotApiMethod);
+        }
+    }
+
+    /**
+     * Метод updateCallbackNotification, каждые день в 17:00 ходит в микросервис back за уведомлениями типа
+     * {@link ru.maza.telegram.dto.NotificationType#CALLBACK} для пользователя
      */
     @Scheduled(cron = "0 0 17 * * ?")
-    private void sendPlanMessages() {
-//        List<BotApiMethod> apiMethod = botService.getPlaningMessage();
-        List<BotApiMethod> apiMethod = new ArrayList<>();
-        for (BotApiMethod messageBotApiMethod : apiMethod) {
-            try {
-                if (messageBotApiMethod != null) {
-                    execute(messageBotApiMethod);
-                }
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
-        }
+    private void updateCallbackNotification() {
+        notificationInfraService.updateCallbackNotifications();
     }
 
     private void send(BotApiMethod apiMethod) {
@@ -326,6 +384,14 @@ public class BotController extends TelegramLongPollingBot {
     }
 
     private void send(SendPhoto apiMethod) {
+        try {
+            execute(apiMethod);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void send(SendMediaGroup apiMethod) {
         try {
             execute(apiMethod);
         } catch (TelegramApiException e) {
@@ -353,7 +419,10 @@ public class BotController extends TelegramLongPollingBot {
         try {
             file = java.io.File.createTempFile("file", null);
             File execute = execute(getFile);
-            send(telegramService.getSendChatAction(telegramService.getMessage(update), ActionType.UPLOADDOCUMENT));
+            send(telegramService.getSendChatAction(
+                    telegramService.getMessage(update),
+                    org.telegram.telegrambots.meta.api.methods.ActionType.UPLOADDOCUMENT
+            ));
             URL fileUrl = new URL(execute.getFileUrl(token));
             HttpURLConnection httpConn = (HttpURLConnection)fileUrl.openConnection();
             InputStream inputStream = httpConn.getInputStream();

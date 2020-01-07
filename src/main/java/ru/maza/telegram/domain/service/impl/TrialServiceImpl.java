@@ -86,6 +86,30 @@ public class TrialServiceImpl implements TrialService {
     }
 
     @Override
+    public BotApiMethod setRightTranslation(Long wordId, Update update) {
+        EditMessageText editMessageText = (EditMessageText)telegramService.fillEditMessage(update);
+        InlineKeyboardMarkup replyMarkup = editMessageText.getReplyMarkup();
+        List<List<InlineKeyboardButton>> keyboard = replyMarkup.getKeyboard();
+
+        keyboard.stream()
+                .filter(inlineKeyboardButtons -> inlineKeyboardButtons.size() < 2)
+                .filter(inlineKeyboardButtons -> !inlineKeyboardButtons.get(0).getText().equals("🔙 Назад"))
+                .map(inlineKeyboardButtons -> inlineKeyboardButtons.get(0))
+                .forEach(inlineKeyboard -> {
+                    CTlteCD chooseTranslate = null;
+                    chooseTranslate = (CTlteCD)callbackService.getCallbackData(inlineKeyboard.getCallbackData());
+                    if (chooseTranslate.getRw().equals(chooseTranslate.getWd())) {
+                        if (chooseTranslate.getRw().equals(wordId)) {
+                            inlineKeyboard.setText(RIGHT + " " + inlineKeyboard.getText());
+                        }
+                    }
+                });
+
+        editMessageText.setReplyMarkup(replyMarkup);
+        return editMessageText;
+    }
+
+    @Override
     public List<BotApiMethod> fillMessageTranslateOption(
             List<Boolean> trialWordStatus,
             TranslateOptionDto translateOptionDto,
@@ -131,12 +155,20 @@ public class TrialServiceImpl implements TrialService {
 
         Collections.shuffle(collect);
 
-        collect.add(new TranscriptionButton(getMessage("transcription.button"), translatableWord.getId(), 2));
+        collect.add(new ChooseLearnedWordButton(
+                getMessage("button.word.unKnow"),
+                translateOptionDto.getTrialWordId(),
+                translateOptionDto.getTrialCondensedDto().getId(),
+                translateOptionDto.getTranslatable().getId(),
+                0L,
+                2
+        ));
         collect.add(new ChooseLearnedWordButton(
                 getMessage("button.word.know"),
                 translateOptionDto.getTrialWordId(),
                 translateOptionDto.getTrialCondensedDto().getId(),
                 translateOptionDto.getTranslatable().getId(),
+                1L,
                 1
         ));
         collect.add(new CancelButton(getMessage("button.cancel.back"), Constant.MY_COLLECTION, 1));
@@ -199,7 +231,7 @@ public class TrialServiceImpl implements TrialService {
         if (page.getPage() != 0) {
             cancelButtons.add(new PageButton("trial", page.getPage() - 1, true, LEFT, 2));
         }
-        cancelButtons.add(new CancelButton(getMessage("button.cancel.back"), Constant.MY_COLLECTION, 2));
+        cancelButtons.add(new CancelButton(getMessage("button.cancel.back"), Constant.START, 2));
         if ((page.getPage() + 1) * 10 < page.getCount()) {
             cancelButtons.add(new PageButton("trial", page.getPage() + 1, false, NOT_LEFT, 2));
         }
@@ -250,14 +282,16 @@ public class TrialServiceImpl implements TrialService {
                       ));
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder
-                .append("Варианты перевода для слова " + "\n👉🏼")
+                .append("Варианты перевода для слова " + "\n👉🏼 ")
                 .append(word.getWord().toUpperCase())
+                .append(" - ")
+                .append(word.getMainTranslation())
                 .append("\n\n")
-                .append("🗣" + " [" + word.getTranscription() + "]" + "\n\n" + "📖");
+                .append("🗣" + " [" + word.getTranscription() + "]" + "\n\n");
 
         partToTranslate.forEach((key, value) -> stringBuilder.append(getMessage(
                 "alert.translate",
-                key,
+                "📖 " + key,
                 String.join(", ", value)
         )));
         return telegramService.addAnswerCallbackQuery(

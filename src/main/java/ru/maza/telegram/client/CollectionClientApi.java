@@ -25,6 +25,9 @@ public interface CollectionClientApi {
     @GetMapping("/collections/condensed/users/{userId}")
     RestPageImpl<CollectionCondensedDto> getCollectionByUserId(@PathVariable("userId") Long userId, Pageable pageable);
 
+    @GetMapping("/collections/imdb/{imdbId}")
+    CollectionDto getByImdbId(@PathVariable("imdbId") String imdbId);
+
     @GetMapping("/collections")
     List<CollectionCondensedDto> search(@RequestParam("collectionName") String collectionName, Pageable pageable);
 

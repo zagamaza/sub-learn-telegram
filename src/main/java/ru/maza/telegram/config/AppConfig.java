@@ -1,28 +1,35 @@
 package ru.maza.telegram.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.cloud.openfeign.FeignFormatterRegistrar;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
 @Configuration
+@EnableScheduling
 @ComponentScan(basePackages = "ru.maza")
 public class AppConfig {
 
+    @Value("${sublearn.back.login}")
+    private String login;
+
+    @Value("${sublearn.back.password}")
+    private String password;
+
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder, ObjectMapper objectMapper) {
-        RestTemplate restTemplate = builder.build();
-
+        RestTemplate restTemplate = builder.basicAuthentication(login, password)
+                                           .build();
         MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter(
                 objectMapper);
         mappingJackson2HttpMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_FORM_URLENCODED));
@@ -38,13 +45,5 @@ public class AppConfig {
         return messageSource;
     }
 
-    @Bean
-    public FeignFormatterRegistrar localDateFeignFormatterRegistrar() {
-        return formatterRegistry -> {
-            DateTimeFormatterRegistrar registrar = new DateTimeFormatterRegistrar();
-            registrar.setUseIsoFormat(true);
-            registrar.registerFormatters(formatterRegistry);
-        };
-    }
 
 }

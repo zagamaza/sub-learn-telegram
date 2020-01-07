@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+set -o pipefail
 
 if [ "$1" == "-v" ]; then
   VERSION=$2

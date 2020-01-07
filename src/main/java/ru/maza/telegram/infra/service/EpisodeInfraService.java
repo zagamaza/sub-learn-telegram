@@ -8,6 +8,7 @@ import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.callbackData.ChooseIsSerialCD;
 import ru.maza.telegram.dto.callbackData.ChooseSeasonCD;
 import ru.maza.telegram.dto.callbackData.ChsSeriesCD;
+import ru.maza.telegram.dto.callbackData.PageSeasonCD;
 import ru.maza.telegram.dto.callbackData.PageSeriesCD;
 
 import java.util.List;
@@ -21,6 +22,8 @@ public interface EpisodeInfraService {
     List<BotApiMethod> afterSaveSub(EpisodeDto episodeDto, Update update);
 
     List<BotApiMethod> chooseSerial(CollectionDto collectionDto, UserDto userDto, Update update);
+
+    List<BotApiMethod> chooseSerialByPage(PageSeasonCD pageSeasonCD, UserDto userDto, Update update);
 
     List<BotApiMethod> chooseFilm(CollectionDto collectionDto, UserDto userDto, Update update);
 

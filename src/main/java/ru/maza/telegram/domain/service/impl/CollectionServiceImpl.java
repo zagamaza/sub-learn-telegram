@@ -137,6 +137,13 @@ public class CollectionServiceImpl implements CollectionService {
         return telegramService.getTelegramMessage(update, keyboardMarkup, text);
     }
 
+    @Override
+    public List<BotApiMethod> fillMessageSlowUploadCollection(Update update) {
+        SendMessage sendMessage = telegramService.getSendMessage(update);
+        sendMessage.setText(getMessage("collection.slow.upload"));
+        return Collections.singletonList(sendMessage);
+    }
+
     private String getMessage(String key, Object... args) {
         return this.messageSource.getMessage(key, args, Locale.getDefault());
     }

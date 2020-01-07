@@ -28,6 +28,7 @@ import java.util.List;
 public class DocumentInfraServiceImpl implements DocumentInfraService {
 
     private final EpisodeInfraService episodeInfraService;
+    private final RestTemplate restTemplate;
     private final BotService botService;
 
     @Value("${sublearn.back.url}")
@@ -56,7 +57,6 @@ public class DocumentInfraServiceImpl implements DocumentInfraService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(map, headers);
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<EpisodeDto> response = restTemplate.exchange(
                 sublearnBackUrl + "/episodes/" + episodeID,
                 HttpMethod.PUT,

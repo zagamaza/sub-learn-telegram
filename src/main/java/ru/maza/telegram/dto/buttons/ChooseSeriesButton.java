@@ -1,9 +1,7 @@
 package ru.maza.telegram.dto.buttons;
 
 import lombok.Data;
-import ru.maza.telegram.dto.callbackData.CallbackData;
 import ru.maza.telegram.dto.callbackData.ChsSeriesCD;
-import ru.maza.telegram.dto.callbackData.LearnedWordCD;
 
 @Data
 public class ChooseSeriesButton extends Button {

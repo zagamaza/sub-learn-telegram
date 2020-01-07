@@ -3,21 +3,25 @@ package ru.maza.telegram.infra.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.methods.AnswerInlineQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQueryResult;
+import ru.maza.telegram.client.ProviderClient;
 import ru.maza.telegram.client.TranslatorClientApi;
 import ru.maza.telegram.client.WordClientApi;
 import ru.maza.telegram.client.impl.CollectionClient;
 import ru.maza.telegram.domain.service.CallbackService;
 import ru.maza.telegram.domain.service.TelegramService;
 import ru.maza.telegram.dto.CollectionCondensedDto;
+import ru.maza.telegram.dto.FoundCollection;
 import ru.maza.telegram.dto.Lang;
 import ru.maza.telegram.dto.WordDto;
 import ru.maza.telegram.dto.callbackData.CallbackData;
 import ru.maza.telegram.infra.service.CallbackInfraService;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +36,7 @@ public class CallbackInfraServiceImpl implements CallbackInfraService {
     private final TranslatorClientApi translatorClientApi;
     private final WordClientApi wordClientApi;
     private final CollectionClient collectionClient;
+    private final ProviderClient providerClient;
 
     @Override
     public CallbackData getCallbackData(String data) {
@@ -56,11 +61,22 @@ public class CallbackInfraServiceImpl implements CallbackInfraService {
     public List<BotApiMethod> searchCollection(Update update) {
         String queryText = update.getInlineQuery().getQuery();
         AnswerInlineQuery answerInlineQuery = telegramService.getAnswerInlineQuery(update);
-        List<CollectionCondensedDto> collections = collectionClient.search(queryText, PageRequest.of(0, 10));
-        List<InlineQueryResult> results = collections
-                .stream()
-                .map(telegramService::fillInlineQueryResultPhoto)
-                .collect(Collectors.toList());
+        List<InlineQueryResult> results;
+        if(StringUtils.isEmpty(queryText)){
+            List<CollectionCondensedDto> collections = collectionClient.search(queryText, PageRequest.of(0, 20));
+            results = collections
+                    .stream()
+                    .map(telegramService::fillInlineQueryResultPhoto)
+                    .collect(Collectors.toList());
+        } else {
+            List<FoundCollection> collections = providerClient.findCollections(queryText);
+            results = collections
+                    .stream()
+                    .map(telegramService::fillInlineQueryResultPhoto)
+                    .collect(Collectors.toList());
+        }
+
+
         answerInlineQuery.setResults(results);
         return Collections.singletonList(answerInlineQuery);
     }

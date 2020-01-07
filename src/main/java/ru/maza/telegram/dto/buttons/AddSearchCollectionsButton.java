@@ -7,11 +7,12 @@ import ru.maza.telegram.dto.callbackData.AddSearchCollectionCD;
 public class AddSearchCollectionsButton extends Button {
 
     private Long collectionId;
+    private String imdbId;
 
-    public AddSearchCollectionsButton(Long collectionId, String name, Integer count) {
+    public AddSearchCollectionsButton(Long collectionId, String imdbId, String name, Integer count) {
         super(
                 name,
-                new AddSearchCollectionCD(collectionId, AddSearchCollectionCD.class.getSimpleName()),
+                new AddSearchCollectionCD(collectionId, imdbId, AddSearchCollectionCD.class.getSimpleName()),
                 count
         );
         this.collectionId = collectionId;

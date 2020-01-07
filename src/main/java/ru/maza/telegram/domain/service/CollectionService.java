@@ -29,4 +29,6 @@ public interface CollectionService {
 
     List<BotApiMethod> getMessageDeleteCollection(CollectionDto collectionDto, Update update);
 
+    List<BotApiMethod> fillMessageSlowUploadCollection(Update update);
+
 }

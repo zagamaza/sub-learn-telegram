@@ -6,7 +6,6 @@ import ru.maza.telegram.dto.CollectionDto;
 import ru.maza.telegram.dto.EpisodeDto;
 import ru.maza.telegram.dto.Page;
 import ru.maza.telegram.dto.TrialDto;
-import ru.maza.telegram.dto.callbackData.ChooseIsSerialCD;
 
 import java.util.List;
 
@@ -16,7 +15,12 @@ public interface EpisodeService {
 
     List<BotApiMethod> afterSaveSub(EpisodeDto episodeDto, Update update);
 
-    List<BotApiMethod> getMessageChooseSerial(List<Integer> seasons, CollectionDto collectionDto, Update update);
+    List<BotApiMethod> getMessageChooseSerial(
+            Page page,
+            List<Integer> seasons,
+            CollectionDto collectionDto,
+            Update update
+    );
 
     List<BotApiMethod> getMessageChooseFilm(
             CollectionDto collectionDto,

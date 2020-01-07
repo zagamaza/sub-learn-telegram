@@ -21,6 +21,7 @@ import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.callbackData.ChooseIsSerialCD;
 import ru.maza.telegram.dto.callbackData.ChooseSeasonCD;
 import ru.maza.telegram.dto.callbackData.ChsSeriesCD;
+import ru.maza.telegram.dto.callbackData.PageSeasonCD;
 import ru.maza.telegram.dto.callbackData.PageSeriesCD;
 import ru.maza.telegram.infra.dao.redis.entity.Command;
 import ru.maza.telegram.infra.service.CommandInfraService;
@@ -62,8 +63,25 @@ public class EpisodeInfraServiceImpl implements EpisodeInfraService {
 
     @Override
     public List<BotApiMethod> chooseSerial(CollectionDto collectionDto, UserDto userDto, Update update) {
-        List<Integer> seasons = episodeClient.getSeasonsByCollectionId(collectionDto.getId());
-        return episodeService.getMessageChooseSerial(seasons, collectionDto, update);
+        RestPageImpl<Integer> seasonsAll = episodeClient.getSeasonsByCollectionId(
+                collectionDto.getId(),
+                PageRequest.of(0, 10)
+        );
+        int totalElements = (int)seasonsAll.getTotalElements();
+        Page page = new Page(totalElements, 0);
+        return episodeService.getMessageChooseSerial(page, seasonsAll.getContent(), collectionDto, update);
+    }
+
+    @Override
+    public List<BotApiMethod> chooseSerialByPage(PageSeasonCD pageSeasonCD, UserDto userDto, Update update) {
+        RestPageImpl<Integer> seasonsAll = episodeClient.getSeasonsByCollectionId(
+                pageSeasonCD.getClnId(),
+                PageRequest.of(pageSeasonCD.getPg(), 10)
+        );
+        CollectionDto collectionDto = collectionClient.get(pageSeasonCD.getClnId());
+        int totalElements = (int)seasonsAll.getTotalElements();
+        Page page = new Page(totalElements, pageSeasonCD.getPg());
+        return episodeService.getMessageChooseSerial(page, seasonsAll.getContent(), collectionDto, update);
     }
 
     @Override
