@@ -23,7 +23,7 @@ import ru.maza.telegram.dto.buttons.MyCollectionsButton;
 import ru.maza.telegram.dto.buttons.MySettingsButton;
 import ru.maza.telegram.dto.buttons.MyTrialsButton;
 import ru.maza.telegram.dto.buttons.SupportButton;
-import ru.maza.telegram.dto.buttons.competitions.MyCompetitionsButton;
+import ru.maza.telegram.dto.buttons.competitions.MyLeagueButton;
 import ru.maza.telegram.dto.callbackData.CancelCD;
 
 import java.io.InputStream;
@@ -68,7 +68,7 @@ public class BotServiceImpl implements BotService {
         List<Button> buttons = new ArrayList<>();
         buttons.add(new MyCollectionsButton(getMessage("button.my.collections")));
         buttons.add(new MyTrialsButton(getMessage("button.my.trials")));
-        buttons.add(new MyCompetitionsButton(getMessage("button.my.competitions")));
+        buttons.add(new MyLeagueButton(getMessage("button.my.competitions")));
         buttons.add(new MySettingsButton(getMessage("button.my.settings")));
         sendMessage.setReplyMarkup(telegramService.getKeyboardMarkup2(buttons));
         return Collections.singletonList(sendMessage);
@@ -81,7 +81,7 @@ public class BotServiceImpl implements BotService {
         List<Button> buttons = new ArrayList<>();
         buttons.add(new MyCollectionsButton(getMessage("button.my.collections")));
         buttons.add(new MyTrialsButton(getMessage("button.my.trials")));
-        buttons.add(new MyCompetitionsButton(getMessage("button.my.competitions")));
+        buttons.add(new MyLeagueButton(getMessage("button.my.competitions")));
         buttons.add(new MySettingsButton(getMessage("button.my.settings")));
         editMessageText.setReplyMarkup(telegramService.getKeyboardMarkup2(buttons));
         return Collections.singletonList(editMessageText);
