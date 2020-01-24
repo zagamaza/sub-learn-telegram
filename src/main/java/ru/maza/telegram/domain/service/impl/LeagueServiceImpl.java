@@ -17,8 +17,8 @@ import ru.maza.telegram.dto.buttons.CancelButton;
 import ru.maza.telegram.dto.buttons.PageButton;
 import ru.maza.telegram.dto.buttons.competitions.MyCompetitionsButton;
 import ru.maza.telegram.dto.competition.LeagueDto;
-import ru.maza.telegram.utils.EmojiUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,10 +27,13 @@ import java.util.stream.Collectors;
 
 import static ru.maza.telegram.utils.EmojiUtils.ALLOW_LEFT;
 import static ru.maza.telegram.utils.EmojiUtils.ALLOW_RIGHT;
+import static ru.maza.telegram.utils.EmojiUtils.extractEmojiPercent;
 
 @Service
 @RequiredArgsConstructor
 public class LeagueServiceImpl implements LeagueService {
+
+    private static final int SUNDAY = 7;
 
     private final MessageSource messageSource;
     private final TelegramService telegramService;
@@ -57,15 +60,17 @@ public class LeagueServiceImpl implements LeagueService {
         fillEmojiToUserName(leagueDtos, page);
         String users = leagueDtos
                 .stream()
-                .map(u -> u.getUserName() + " - " + EmojiUtils.extractEmojiPercent(u.getExperience()))
+                .map(u -> u.getUserName() + " - " + extractEmojiPercent(u.getExperience()))
                 .collect(Collectors.joining("\n\n"));
         EditMessageText editMessage = telegramService.getEditMessage(update);
         editMessage.setReplyMarkup(keyboardMarkup);
         editMessage.setParseMode(null);
-        editMessage.setText(getMessage("league.start.window", users));
+        LocalDateTime localDateTime = LocalDateTime.now();
+        int day = SUNDAY - localDateTime.getDayOfWeek().getValue();
+        int hours = 23 - localDateTime.getHour();
+        String date = extractEmojiPercent(day) + " д. " + extractEmojiPercent(hours) + " ч.";
+        editMessage.setText(getMessage("league.start.window", date, users));
         return Collections.singletonList(editMessage);
-
-
     }
 
     private void fillEmojiToUserName(List<LeagueDto> leagueDtos, Page page) {
