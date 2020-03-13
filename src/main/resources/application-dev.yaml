@@ -1,0 +1,24 @@
+tg:
+  token:
+  username:
+
+server:
+  port: 8083
+
+sublearn:
+  back:
+    url: http://imbir.ga:8080/api
+    login:
+    password:
+  competition:
+    url: http://imbir.ga:8084/api/competition
+  provider:
+    url: http://imbir.ga:8085
+
+spring:
+  redis:
+    host: localhost
+    port: 6379
+  rabbitmq:
+    host: localhost
+    port: 5672

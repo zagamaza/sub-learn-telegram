@@ -1,5 +1,6 @@
 package ru.maza.telegram.domain.service;
 
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.maza.telegram.dto.Page;
@@ -24,7 +25,7 @@ public interface TrialService {
             Update update
     );
 
-    List<BotApiMethod> finishTrial(List<Boolean> trialWordStatus, TrialDto trialDto, Update update);
+    BotApiMethod finishTrial(List<Boolean> trialWordStatus, AnswerCallbackQuery callbackQuery, TrialDto trialDto, Update update);
 
     List<BotApiMethod> fillMessageWithAllTrial(Page page, List<TrialCondensedDto> lastConsedTrial, Update update);
 

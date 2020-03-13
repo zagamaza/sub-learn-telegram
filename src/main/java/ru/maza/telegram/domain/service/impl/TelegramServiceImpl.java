@@ -114,7 +114,7 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     @Override
-    public AnswerCallbackQuery addAnswerCallbackQuery(
+    public BotApiMethod<Boolean> addAnswerCallbackQuery(
             CallbackQuery callbackQuery,
             boolean isShowAlert,
             String text

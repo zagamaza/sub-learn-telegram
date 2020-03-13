@@ -2,6 +2,7 @@ package ru.maza.telegram.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -79,6 +80,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class BotController extends TelegramLongPollingBot {
 
     private final TelegramService telegramService;
@@ -181,7 +183,7 @@ public class BotController extends TelegramLongPollingBot {
 
         }
         if (update.hasCallbackQuery()) {
-            AnswerCallbackQuery answerCallback = notificationInfraService.getAnswerCallback(update);
+            AnswerCallbackQuery answerCallback = notificationInfraService.getRandomAnswerCallback(update);
             if (answerCallback != null) {
                 send(answerCallback);
                 return;
@@ -427,10 +429,11 @@ public class BotController extends TelegramLongPollingBot {
             HttpURLConnection httpConn = (HttpURLConnection)fileUrl.openConnection();
             InputStream inputStream = httpConn.getInputStream();
             byte[] output = IOUtils.toByteArray(inputStream);
-            FileOutputStream stream = new FileOutputStream(file);
-            stream.write(output);
+            try (FileOutputStream stream = new FileOutputStream(file)) {
+                stream.write(output);
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
         return documentInfraService.addSubEpisode(file, episodeId, update);
     }

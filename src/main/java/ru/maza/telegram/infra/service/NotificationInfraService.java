@@ -12,6 +12,8 @@ public interface NotificationInfraService {
 
     void updateCallbackNotifications();
 
-    AnswerCallbackQuery getAnswerCallback(Update update);
+    AnswerCallbackQuery getRandomAnswerCallback(Update update);
+
+    AnswerCallbackQuery getAnswerCallback();
 
 }

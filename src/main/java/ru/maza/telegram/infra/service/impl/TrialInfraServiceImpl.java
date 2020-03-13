@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.maza.telegram.client.TrialClientApi;
@@ -26,6 +27,7 @@ import ru.maza.telegram.dto.callbackData.CTlteCD;
 import ru.maza.telegram.dto.callbackData.ChooseTrialCD;
 import ru.maza.telegram.dto.callbackData.PageCD;
 import ru.maza.telegram.infra.mq.UserMQ;
+import ru.maza.telegram.infra.service.NotificationInfraService;
 import ru.maza.telegram.infra.service.TrialInfraService;
 
 import java.util.List;
@@ -34,6 +36,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TrialInfraServiceImpl implements TrialInfraService {
 
+    private final NotificationInfraService notificationInfraService;
     private final TrialClientApi trialClientApi;
     private final TrialWordClientApi trialWordClientApi;
     private final WordClientApi wordClientApi;
@@ -74,7 +77,8 @@ public class TrialInfraServiceImpl implements TrialInfraService {
         } catch (FeignException e) {
             TrialDto trialDto = trialClientApi.get(trialId);
             List<Boolean> trialWordStatus = trialClientApi.getTrialWordStatusByTrialId(trialId);
-            return trialService.finishTrial(trialWordStatus, trialDto, update);
+            AnswerCallbackQuery advertisingAnswerCallback = notificationInfraService.getAnswerCallback();
+            return List.of(trialService.finishTrial(trialWordStatus, advertisingAnswerCallback, trialDto, update));
         }
         List<Boolean> trialWordStatus = trialClientApi.getTrialWordStatusByTrialId(trialId);
         return trialService.fillMessageTranslateOption(trialWordStatus, translateOptionDto, update);
@@ -127,14 +131,15 @@ public class TrialInfraServiceImpl implements TrialInfraService {
         if (trialWordDto.isLastWord()) {
             TrialDto trialDto = trialClientApi.get(trialWordDto.getTrialDto().getId());
             List<Boolean> trialWordStatus = trialClientApi.getTrialWordStatusByTrialId(trialDto.getId());
-            return trialService.finishTrial(trialWordStatus, trialDto, update);
+            AnswerCallbackQuery answerCallback = notificationInfraService.getAnswerCallback();
+            return List.of(trialService.finishTrial(trialWordStatus, answerCallback, trialDto, update));
         }
         return getNextWord(trialWordDto.getTrialDto().getId(), update);
     }
 
     @Override
     public BotApiMethod setRightWord(Long wdId, Update update) {
-        return trialService.setRightTranslation(wdId,update);
+        return trialService.setRightTranslation(wdId, update);
     }
 
 }
