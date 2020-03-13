@@ -5,6 +5,7 @@ import com.vdurmont.emoji.EmojiManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -28,7 +29,6 @@ import ru.maza.telegram.dto.buttons.ChooseStartTrialButton;
 import ru.maza.telegram.dto.buttons.ChooseTranslateButton;
 import ru.maza.telegram.dto.buttons.ChooseTrialButton;
 import ru.maza.telegram.dto.buttons.PageButton;
-import ru.maza.telegram.dto.buttons.TranscriptionButton;
 import ru.maza.telegram.dto.callbackData.CTlteCD;
 import ru.maza.telegram.dto.callbackData.CancelCD;
 import ru.maza.telegram.utils.EmojiUtils;
@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -198,17 +199,21 @@ public class TrialServiceImpl implements TrialService {
 
 
     @Override
-    public List<BotApiMethod> finishTrial(
+    public BotApiMethod<Boolean> finishTrial(
             List<Boolean> trialWordStatus,
+            AnswerCallbackQuery answerCallbackQuery,
             TrialDto trialDto,
             Update update
     ) {
         int size = trialWordStatus.size();
-        long trueCount = trialWordStatus.stream().filter(t -> t).count();
-        String finishTrial = getMessage("success.trial.message", TADA, trueCount * 100 / size);
-        return List.of(
-                telegramService.addAnswerCallbackQuery(update.getCallbackQuery(), true, finishTrial)
-        );
+        int trueCount = (int)trialWordStatus.stream().filter(t -> t).count();
+        StringBuilder finishTrial = new StringBuilder(getMessage(
+                "success.trial.message",
+                TADA,
+                EmojiUtils.extractEmojiPercent(trueCount * 100 / size)
+        ));
+        Optional.ofNullable(answerCallbackQuery).ifPresent(a -> finishTrial.append(a.getText()));
+        return telegramService.addAnswerCallbackQuery(update.getCallbackQuery(), true, finishTrial.toString());
     }
 
     @Override
