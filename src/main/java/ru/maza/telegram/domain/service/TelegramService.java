@@ -47,7 +47,7 @@ public interface TelegramService {
 
     ReplyKeyboardMarkup getReplyKeyboardMarkup(String... buttonNames);
 
-    BotApiMethod addAnswerCallbackQuery(CallbackQuery callbackQuery, boolean isShowAlert, String text);
+    BotApiMethod<Boolean> addAnswerCallbackQuery(CallbackQuery callbackQuery, boolean isShowAlert, String text);
 
     SendChatAction getSendChatAction(Message message, ActionType actionType);
 

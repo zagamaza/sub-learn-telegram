@@ -59,7 +59,7 @@ public class NotificationInfraServiceImpl implements NotificationInfraService {
     }
 
     @Override
-    public AnswerCallbackQuery getAnswerCallback(Update update) {
+    public AnswerCallbackQuery getRandomAnswerCallback(Update update) {
         int i = (int)(Math.random() * 500);
         if (i == 77) {
             AnswerCallbackQuery callbackQuery = getAnswerCallbackQuery();
@@ -70,6 +70,11 @@ public class NotificationInfraServiceImpl implements NotificationInfraService {
             callbackQuery.setShowAlert(true);
             return callbackQuery;
         } else { return null; }
+    }
+
+    @Override
+    public AnswerCallbackQuery getAnswerCallback() {
+        return getAnswerCallbackQuery();
     }
 
 }
