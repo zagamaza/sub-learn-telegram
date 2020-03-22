@@ -22,4 +22,6 @@ public interface UserSettingInfraService {
 
     List<BotApiMethod> updateLearnedWordCount(Integer count, UserDto userDto, Update update);
 
+    BotApiMethod resetProgress(UserDto userDto, Update update);
+
 }

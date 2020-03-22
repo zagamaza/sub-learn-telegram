@@ -155,6 +155,12 @@ public class BotServiceImpl implements BotService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public BotApiMethod<Boolean> getAlertForResetProgress(Update update) {
+        String text = getMessage("setting.progress.resets");
+        return telegramService.addAnswerCallbackQuery(update.getCallbackQuery(), true, text);
+    }
+
     private String getMessage(String key, Object... args) {
         return this.messageSource.getMessage(key, args, Locale.getDefault());
     }

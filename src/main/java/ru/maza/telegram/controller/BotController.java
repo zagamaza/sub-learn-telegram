@@ -50,6 +50,7 @@ import ru.maza.telegram.dto.callbackData.MyTrialsCD;
 import ru.maza.telegram.dto.callbackData.PageCD;
 import ru.maza.telegram.dto.callbackData.PageSeasonCD;
 import ru.maza.telegram.dto.callbackData.PageSeriesCD;
+import ru.maza.telegram.dto.callbackData.ResetProgressCD;
 import ru.maza.telegram.dto.callbackData.ScheduleCD;
 import ru.maza.telegram.dto.callbackData.ShowAllTrCD;
 import ru.maza.telegram.dto.callbackData.SupportCD;
@@ -271,6 +272,8 @@ public class BotController extends TelegramLongPollingBot {
             } else if (callbackData instanceof LearnedWordCountCD) {
                 LearnedWordCountCD learnedWordCountCD = (LearnedWordCountCD)callbackData;
                 send(userSettingInfraService.updateLearnedWordCount(learnedWordCountCD.getLearnedCount(), userDto, update));
+            } else if (callbackData instanceof ResetProgressCD) {
+                send(userSettingInfraService.resetProgress(userDto, update));
             }
 
             /**Страница рейтинга*/
