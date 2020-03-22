@@ -24,4 +24,6 @@ public interface BotService {
 
     List<BotApiMethod> getMessageNotifications(List<NotificationDto> content);
 
+    BotApiMethod<Boolean> getAlertForResetProgress(Update update);
+
 }

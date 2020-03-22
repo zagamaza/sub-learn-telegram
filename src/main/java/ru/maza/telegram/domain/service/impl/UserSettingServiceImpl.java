@@ -14,6 +14,7 @@ import ru.maza.telegram.dto.UserSettingDto;
 import ru.maza.telegram.dto.buttons.Button;
 import ru.maza.telegram.dto.buttons.CancelButton;
 import ru.maza.telegram.dto.buttons.settings.LearnedWordCountButton;
+import ru.maza.telegram.dto.buttons.settings.ResetProgressButton;
 import ru.maza.telegram.dto.buttons.settings.ScheduleTrialButton;
 import ru.maza.telegram.dto.buttons.settings.ShowAllTranslateButton;
 import ru.maza.telegram.dto.buttons.settings.TranslateOptionsCountSettingButton;
@@ -73,7 +74,8 @@ public class UserSettingServiceImpl implements UserSettingService {
                 new ShowAllTranslateButton(
                         getMessage("setting.is.show.translate", userSettingDto.isShowAllTranslate() ? OK : NOT),
                         1
-                )
+                ),
+                new ResetProgressButton(getMessage("setting.is.reset.progress"), 1)
 
         ));
         buttons.add(new CancelButton(getMessage("button.cancel"), "/start", 1));

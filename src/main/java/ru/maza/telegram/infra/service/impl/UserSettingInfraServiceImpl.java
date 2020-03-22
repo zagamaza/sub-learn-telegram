@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.maza.telegram.client.UserSettingClientApi;
+import ru.maza.telegram.client.UserWordClientApi;
+import ru.maza.telegram.domain.service.BotService;
 import ru.maza.telegram.domain.service.UserSettingService;
 import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.UserSettingDto;
@@ -20,7 +22,9 @@ import java.util.List;
 public class UserSettingInfraServiceImpl implements UserSettingInfraService {
 
     private final UserSettingClientApi userSettingClientApi;
+    private final UserWordClientApi userWordClientApi;
     private final UserSettingService userSettingService;
+    private final BotService botService;
 
     @Override
     public List<BotApiMethod> getMySettings(UserDto userDto, Update update) {
@@ -77,6 +81,12 @@ public class UserSettingInfraServiceImpl implements UserSettingInfraService {
         userSettingDto.setLearnedWordCount(count);
         userSettingClientApi.update(userSettingDto);
         return userSettingService.fillMessageWithAllSettings(userSettingDto, update);
+    }
+
+    @Override
+    public BotApiMethod<Boolean> resetProgress(UserDto userDto, Update update) {
+        userWordClientApi.resetProgress(userDto.getId());
+        return botService.getAlertForResetProgress(update);
     }
 
 }
