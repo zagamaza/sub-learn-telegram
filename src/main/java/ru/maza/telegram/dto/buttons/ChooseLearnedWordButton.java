@@ -1,7 +1,7 @@
 package ru.maza.telegram.dto.buttons;
 
 import lombok.Data;
-import ru.maza.telegram.dto.callbackData.LeardWdCD;
+import ru.maza.telegram.dto.callbackData.LWdCD;
 
 @Data
 public class ChooseLearnedWordButton extends Button {
@@ -19,7 +19,7 @@ public class ChooseLearnedWordButton extends Button {
             Long isKnow,
             Integer countButtonInLine
     ) {
-        super(name, new LeardWdCD(trialWordId, trialId, wordId, isKnow), countButtonInLine);
+        super(name, new LWdCD(trialWordId, trialId, wordId, isKnow), countButtonInLine);
         this.trialWordId = trialWordId;
         this.trialId = trialId;
         this.wordId = wordId;

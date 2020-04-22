@@ -28,7 +28,7 @@ import ru.maza.telegram.dto.callbackData.AddFileCD;
 import ru.maza.telegram.dto.callbackData.AddFriendCD;
 import ru.maza.telegram.dto.callbackData.AddPersonalCollectionCD;
 import ru.maza.telegram.dto.callbackData.AddSearchCollectionCD;
-import ru.maza.telegram.dto.callbackData.CTlteCD;
+import ru.maza.telegram.dto.callbackData.CCD;
 import ru.maza.telegram.dto.callbackData.CallbackData;
 import ru.maza.telegram.dto.callbackData.CancelCD;
 import ru.maza.telegram.dto.callbackData.ChooseCollectionCD;
@@ -40,7 +40,7 @@ import ru.maza.telegram.dto.callbackData.ChsSeriesCD;
 import ru.maza.telegram.dto.callbackData.DelCollectionCD;
 import ru.maza.telegram.dto.callbackData.DelEpisodeCD;
 import ru.maza.telegram.dto.callbackData.DeleteFriendCD;
-import ru.maza.telegram.dto.callbackData.LeardWdCD;
+import ru.maza.telegram.dto.callbackData.LWdCD;
 import ru.maza.telegram.dto.callbackData.LearnedWordCountCD;
 import ru.maza.telegram.dto.callbackData.MyCollectionsCD;
 import ru.maza.telegram.dto.callbackData.MyCompetitionsCD;
@@ -76,6 +76,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -196,18 +197,18 @@ public class BotController extends TelegramLongPollingBot {
             if (callbackData instanceof ChooseCollectionCD) {
                 ChooseCollectionCD chooseCollection = (ChooseCollectionCD)callbackData;
                 send(collectionInfraService.chooseCollection(chooseCollection.getCltnId(), userDto, update));
-            } else if (callbackData instanceof CTlteCD) {
-                CTlteCD chooseTranslateCD = (CTlteCD)callbackData;
+            } else if (callbackData instanceof CCD) {
+                CCD chooseTranslateCD = (CCD)callbackData;
                 send(trialInfraService.saveAndCheckResult(chooseTranslateCD, userDto, update));
-                if (!chooseTranslateCD.getRw().equals(chooseTranslateCD.getWd()) ||
+                if (!chooseTranslateCD.getR().equals(chooseTranslateCD.getW()) ||
                         userDto.getUserSettingDto().isShowAllTranslate()) {
                     Thread.sleep(100);
-                    send(trialInfraService.getAlertWithAllTranslates(chooseTranslateCD.getRw(), update));
+                    send(trialInfraService.getAlertWithAllTranslates(chooseTranslateCD.getR(), update));
                 }
-                List<BotApiMethod> nextWord = trialInfraService.getNextWord(chooseTranslateCD.getTl(), update);
+                List<BotApiMethod> nextWord = trialInfraService.getNextWord(chooseTranslateCD.getT(), update);
                 Thread.sleep(500);
                 if (nextWord.get(0) instanceof AnswerCallbackQuery) {
-                    send(trialInfraService.repeatTrial(chooseTranslateCD.getTl(), userDto, update));
+                    send(trialInfraService.repeatTrial(chooseTranslateCD.getT(), userDto, update));
                 }
                 send(nextWord);
             } else if (callbackData instanceof CancelCD) {
@@ -305,17 +306,17 @@ public class BotController extends TelegramLongPollingBot {
                 } else if (pageCD.getEntity().equals("league")) {
                     send(leagueInfraService.getLeagueUsersByPage(userDto, pageCD, update));
                 }
-            } else if (callbackData instanceof LeardWdCD) {
-                LeardWdCD leardWdCD = (LeardWdCD)callbackData;
-                send(trialInfraService.setRightWord(leardWdCD.getWdId(), update));
+            } else if (callbackData instanceof LWdCD) {
+                LWdCD lWdCD = (LWdCD)callbackData;
+                send(trialInfraService.setRightWord(lWdCD.getWd(), update));
                 Thread.sleep(200);
-                send(trialInfraService.getAlertWithAllTranslates(leardWdCD.getWdId(), update));
+                send(trialInfraService.getAlertWithAllTranslates(lWdCD.getWd(), update));
                 List<BotApiMethod> botApiMethods = trialInfraService.saveLearnedTrialWordAndGetNextWord(
-                        leardWdCD.getTwId(), leardWdCD.getIsK() == 1, update
+                        lWdCD.getTw(), lWdCD.getIsK() == 1, update
                 );
                 send(botApiMethods);
                 if (botApiMethods.get(0) instanceof AnswerCallbackQuery) {
-                    send(trialInfraService.repeatTrial(leardWdCD.getTlId(), userDto, update));
+                    send(trialInfraService.repeatTrial(lWdCD.getTl(), userDto, update));
                 }
             } else if (callbackData instanceof ChooseSeasonCD) {
                 ChooseSeasonCD chooseSeasonCD = (ChooseSeasonCD)callbackData;
