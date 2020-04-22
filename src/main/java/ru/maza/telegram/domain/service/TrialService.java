@@ -9,13 +9,13 @@ import ru.maza.telegram.dto.TrialCondensedDto;
 import ru.maza.telegram.dto.TrialDto;
 import ru.maza.telegram.dto.UserDto;
 import ru.maza.telegram.dto.WordDto;
-import ru.maza.telegram.dto.callbackData.CTlteCD;
+import ru.maza.telegram.dto.callbackData.CCD;
 
 import java.util.List;
 
 public interface TrialService {
 
-    BotApiMethod checkTranslation(CTlteCD chooseTranslateCD, Update update);
+    BotApiMethod checkTranslation(CCD chooseTranslateCD, Update update);
 
     BotApiMethod setRightTranslation(Long wordId, Update update);
 

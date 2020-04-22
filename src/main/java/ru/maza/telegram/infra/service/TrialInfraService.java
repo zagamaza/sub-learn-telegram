@@ -3,7 +3,7 @@ package ru.maza.telegram.infra.service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.maza.telegram.dto.UserDto;
-import ru.maza.telegram.dto.callbackData.CTlteCD;
+import ru.maza.telegram.dto.callbackData.CCD;
 import ru.maza.telegram.dto.callbackData.ChooseTrialCD;
 import ru.maza.telegram.dto.callbackData.PageCD;
 
@@ -14,7 +14,7 @@ public interface TrialInfraService {
     List<BotApiMethod> startTrial(UserDto userDto, Update update, Long episodeId);
 
     List<BotApiMethod> saveAndCheckResult(
-            CTlteCD chooseTranslateCD,
+            CCD chooseTranslateCD,
             UserDto userDto,
             Update update
     );

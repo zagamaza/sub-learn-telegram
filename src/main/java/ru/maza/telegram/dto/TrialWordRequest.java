@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.maza.telegram.dto.callbackData.CTlteCD;
+import ru.maza.telegram.dto.callbackData.CCD;
 
 @Data
 @Builder
@@ -18,12 +18,12 @@ public class TrialWordRequest {
     boolean isRight;
     boolean isPassed;
 
-    public static TrialWordRequest from(CTlteCD chooseTranslateCD) {
+    public static TrialWordRequest from(CCD chooseTranslateCD) {
         return new TrialWordRequest(
                 chooseTranslateCD.getTw(),
                 null,
                 null,
-                chooseTranslateCD.getRw().equals(chooseTranslateCD.getWd()),
+                chooseTranslateCD.getR().equals(chooseTranslateCD.getW()),
                 true
         );
     }

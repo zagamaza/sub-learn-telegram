@@ -23,7 +23,7 @@ import ru.maza.telegram.dto.TrialRequest;
 import ru.maza.telegram.dto.TrialWordDto;
 import ru.maza.telegram.dto.TrialWordRequest;
 import ru.maza.telegram.dto.UserDto;
-import ru.maza.telegram.dto.callbackData.CTlteCD;
+import ru.maza.telegram.dto.callbackData.CCD;
 import ru.maza.telegram.dto.callbackData.ChooseTrialCD;
 import ru.maza.telegram.dto.callbackData.PageCD;
 import ru.maza.telegram.infra.mq.UserMQ;
@@ -54,15 +54,15 @@ public class TrialInfraServiceImpl implements TrialInfraService {
     }
 
     @Override
-    public List<BotApiMethod> saveAndCheckResult(CTlteCD chooseTranslateCD, UserDto userDto, Update update) {
+    public List<BotApiMethod> saveAndCheckResult(CCD chooseTranslateCD, UserDto userDto, Update update) {
         TrialWordRequest trialWordRequest = TrialWordRequest.from(chooseTranslateCD);
         sendMQ(userDto, chooseTranslateCD);
         trialWordClientApi.updateTrialWordAndSaveUserWord(trialWordRequest);
         return List.of(trialService.checkTranslation(chooseTranslateCD, update));
     }
 
-    private void sendMQ(UserDto userDto, CTlteCD chooseTranslateCD) {
-        if (chooseTranslateCD.getRw().equals(chooseTranslateCD.getWd())) {
+    private void sendMQ(UserDto userDto, CCD chooseTranslateCD) {
+        if (chooseTranslateCD.getR().equals(chooseTranslateCD.getW())) {
             String userName = userDto.getUserName().replace("_null", "");
             UserMQ userMQ = new UserMQ(userDto.getId(), userDto.getTelegramId(), userName);
             rabbitTemplate.convertAndSend(userMQ);

@@ -29,7 +29,7 @@ import ru.maza.telegram.dto.buttons.ChooseStartTrialButton;
 import ru.maza.telegram.dto.buttons.ChooseTranslateButton;
 import ru.maza.telegram.dto.buttons.ChooseTrialButton;
 import ru.maza.telegram.dto.buttons.PageButton;
-import ru.maza.telegram.dto.callbackData.CTlteCD;
+import ru.maza.telegram.dto.callbackData.CCD;
 import ru.maza.telegram.dto.callbackData.CancelCD;
 import ru.maza.telegram.utils.EmojiUtils;
 
@@ -57,7 +57,7 @@ public class TrialServiceImpl implements TrialService {
     private static final String TADA = EmojiManager.getForAlias("tada").getUnicode();
 
     @Override
-    public BotApiMethod checkTranslation(CTlteCD chooseTranslateCD, Update update) {
+    public BotApiMethod checkTranslation(CCD chooseTranslateCD, Update update) {
         EditMessageText editMessageText = (EditMessageText)telegramService.fillEditMessage(update);
         InlineKeyboardMarkup replyMarkup = editMessageText.getReplyMarkup();
         List<List<InlineKeyboardButton>> keyboard = replyMarkup.getKeyboard();
@@ -67,17 +67,17 @@ public class TrialServiceImpl implements TrialService {
                 .filter(inlineKeyboardButtons -> !inlineKeyboardButtons.get(0).getText().equals("🔙 Назад"))
                 .map(inlineKeyboardButtons -> inlineKeyboardButtons.get(0))
                 .forEach(inlineKeyboard -> {
-                    CTlteCD chooseTranslate = null;
-                    chooseTranslate = (CTlteCD)callbackService.getCallbackData(inlineKeyboard.getCallbackData());
-                    if (chooseTranslate.getRw().equals(chooseTranslate.getWd())) {
-                        if (chooseTranslate.getRw().equals(chooseTranslateCD.getWd())) {
+                    CCD chooseTranslate = null;
+                    chooseTranslate = (CCD)callbackService.getCallbackData(inlineKeyboard.getCallbackData());
+                    if (chooseTranslate.getR().equals(chooseTranslate.getW())) {
+                        if (chooseTranslate.getR().equals(chooseTranslateCD.getW())) {
                             inlineKeyboard.setText(OK + " " + inlineKeyboard.getText());
                         } else {
                             inlineKeyboard.setText(RIGHT + " " + inlineKeyboard.getText());
                         }
                     }
-                    if (chooseTranslate.getWd().equals(chooseTranslateCD.getWd()) &&
-                            !chooseTranslate.getRw().equals(chooseTranslateCD.getWd())) {
+                    if (chooseTranslate.getW().equals(chooseTranslateCD.getW()) &&
+                            !chooseTranslate.getR().equals(chooseTranslateCD.getW())) {
                         inlineKeyboard.setText(NOT + inlineKeyboard.getText());
                     }
                 });
@@ -97,10 +97,10 @@ public class TrialServiceImpl implements TrialService {
                 .filter(inlineKeyboardButtons -> !inlineKeyboardButtons.get(0).getText().equals("🔙 Назад"))
                 .map(inlineKeyboardButtons -> inlineKeyboardButtons.get(0))
                 .forEach(inlineKeyboard -> {
-                    CTlteCD chooseTranslate = null;
-                    chooseTranslate = (CTlteCD)callbackService.getCallbackData(inlineKeyboard.getCallbackData());
-                    if (chooseTranslate.getRw().equals(chooseTranslate.getWd())) {
-                        if (chooseTranslate.getRw().equals(wordId)) {
+                    CCD chooseTranslate = null;
+                    chooseTranslate = (CCD)callbackService.getCallbackData(inlineKeyboard.getCallbackData());
+                    if (chooseTranslate.getR().equals(chooseTranslate.getW())) {
+                        if (chooseTranslate.getR().equals(wordId)) {
                             inlineKeyboard.setText(RIGHT + " " + inlineKeyboard.getText());
                         }
                     }

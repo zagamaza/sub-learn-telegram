@@ -1,7 +1,7 @@
 package ru.maza.telegram.dto.buttons;
 
 import lombok.Data;
-import ru.maza.telegram.dto.callbackData.CTlteCD;
+import ru.maza.telegram.dto.callbackData.CCD;
 
 @Data
 public class ChooseTranslateButton extends Button {
@@ -19,7 +19,7 @@ public class ChooseTranslateButton extends Button {
             Long rightWordId,
             Integer countButtonInLine
     ) {
-        super(name, new CTlteCD(trialWordId, trialId, wordId, rightWordId), countButtonInLine);
+        super(name, new CCD(trialWordId, trialId, wordId, rightWordId), countButtonInLine);
         this.trialWordId = trialWordId;
         this.trialId = trialId;
         this.wordId = wordId;
