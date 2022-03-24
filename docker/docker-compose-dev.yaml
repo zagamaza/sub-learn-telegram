@@ -6,10 +6,11 @@ services:
     image: redis
     restart: always
     ports:
-      - 6379:6379
-  rabitmq:
-    container_name: rabitmq
-    image: rabitmq
+      - "6379:6379"
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq
     restart: always
     ports:
-      - 5672:5672
+      - "5672:5672"

@@ -121,7 +121,7 @@ public class BotController extends TelegramLongPollingBot {
     @Override
     @SneakyThrows
     public void onUpdateReceived(Update update) {
-        Integer userId = telegramService.getUser(update).getId();
+        Long userId = telegramService.getUser(update).getId();
         UserDto userDto = textInfraService.saveUser(update, userId);
 
         if (update.hasMessage()) {

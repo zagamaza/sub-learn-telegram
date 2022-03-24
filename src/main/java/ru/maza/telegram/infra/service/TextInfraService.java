@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface TextInfraService {
 
-    UserDto saveUser(Update update, Integer userId);
+    UserDto saveUser(Update update, Long userId);
 
     List<BotApiMethod> translateWord(String answer, Update update);
 
