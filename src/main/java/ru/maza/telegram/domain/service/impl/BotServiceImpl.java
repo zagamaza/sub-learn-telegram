@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.maza.telegram.domain.service.BotService;
@@ -100,9 +101,12 @@ public class BotServiceImpl implements BotService {
         SendPhoto sendPhoto = new SendPhoto();
         sendPhoto.setChatId(telegramService.getChatId(update));
         sendPhoto.setParseMode("Markdown");
-        InputStream resourceAsStream = this.getClass().getResourceAsStream("/support/" + support + ".jpg");
         sendPhoto.setCaption(getMessage("support." + support + ".screen"));
-        sendPhoto.setPhoto("photo", resourceAsStream);
+
+        InputStream resourceAsStream = this.getClass().getResourceAsStream("/support/" + support + ".jpg");
+        InputFile inputFile = new InputFile(resourceAsStream, support);
+        sendPhoto.setPhoto(inputFile);
+
         List<Button> buttons = new ArrayList<>();
         if (supportId != 1) {
             buttons.add(new SupportButton(supportId - 1, getMessage("button.support.back"), 2));
@@ -143,14 +147,15 @@ public class BotServiceImpl implements BotService {
         return content
                 .stream()
                 .map(n -> {
-                    SendMessage sendMessage = new SendMessage(n.getUserDto().getTelegramId(), n.getText());
+                    SendMessage sendMessage = new SendMessage(Long.toString(n.getUserDto().getTelegramId()), n.getText());
                     sendMessage.setParseMode("Markdown");
                     InlineKeyboardMarkup keyboardMarkup = telegramService.getKeyboardMarkup2(List.of(new CancelButton(
                             getMessage("button.cancel"),
                             Constant.START,
                             1
                     )));
-                    return sendMessage.setReplyMarkup(keyboardMarkup);
+                    sendMessage.setReplyMarkup(keyboardMarkup);
+                    return sendMessage;
                 })
                 .collect(Collectors.toList());
     }
