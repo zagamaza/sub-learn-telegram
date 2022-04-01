@@ -68,7 +68,7 @@ public class CompetitionServiceImpl implements CompetitionService {
                 .map(u -> u.getUserName() + " - " + EmojiUtils.extractEmojiPercent(u.getExperience()))
                 .collect(Collectors.joining("\n\n"));
         if (isEdit) {
-            EditMessageText editMessage     = telegramService.getEditMessage(update);
+            EditMessageText editMessage = telegramService.getEditMessage(update);
             editMessage.setReplyMarkup(keyboardMarkup);
             editMessage.setParseMode(null);
             editMessage.setText(getMessage("competitions.start.window", users));
@@ -124,7 +124,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         inputMediaContact.setMedia(contact, "photo");
         InputMediaPhoto inputMediaClip = new InputMediaPhoto();
         inputMediaClip.setMedia(clip, "photo1");
-        sendMediaGroup.setMedia(List.of(inputMediaClip, inputMediaContact));
+        sendMediaGroup.setMedias(List.of(inputMediaClip, inputMediaContact));
         return sendMediaGroup;
     }
 
@@ -173,7 +173,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         inputMediaContact.setMedia(contact, "photo");
         InputMediaPhoto inputMediaClip = new InputMediaPhoto();
         inputMediaClip.setMedia(clip, "photo1");
-        sendMediaGroup.setMedia(List.of(inputMediaClip, inputMediaContact));
+        sendMediaGroup.setMedias(List.of(inputMediaClip, inputMediaContact));
         return sendMediaGroup;
     }
 

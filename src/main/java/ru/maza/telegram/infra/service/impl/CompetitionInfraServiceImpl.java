@@ -57,9 +57,9 @@ public class CompetitionInfraServiceImpl implements CompetitionInfraService {
         if (!update.getMessage().hasContact()) {
             return competitionService.getMessageNotValidContact(update);
         } else {
-            Integer userID = update.getMessage().getContact().getUserID();
+            Long userId = update.getMessage().getContact().getUserId();
             try {
-                CompetitionUserDto competitionUserDto = competitionUserClient.getByTelegramId(userID.longValue());
+                CompetitionUserDto competitionUserDto = competitionUserClient.getByTelegramId(userId);
                 userFriendClient.create(new UserFriendDto(userDto.getId(), competitionUserDto.getId()));
                 return competitionService.getMessageAddedFriend(update);
             } catch (Exception e) {
@@ -84,9 +84,9 @@ public class CompetitionInfraServiceImpl implements CompetitionInfraService {
         if (!update.getMessage().hasContact()) {
             return competitionService.getMessageNotValidContact(update);
         } else {
-            Integer userID = update.getMessage().getContact().getUserID();
+            Long userId = update.getMessage().getContact().getUserId();
             try {
-                CompetitionUserDto competitionFriendUserDto = competitionUserClient.getByTelegramId(userID.longValue());
+                CompetitionUserDto competitionFriendUserDto = competitionUserClient.getByTelegramId(userId);
                 userFriendClient.delete(userDto.getId(), competitionFriendUserDto.getId());
                 return competitionService.getMessageDeletedFriend(update);
             } catch (Exception e) {

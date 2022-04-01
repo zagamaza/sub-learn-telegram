@@ -87,7 +87,7 @@ jobs:
         run: chmod +x ./gradlew
       - name: Set env VERSION
         run: |
-          echo "::set-env name=VERSION::$(./gradlew -q printVersion)"
+          echo "VERSION=$(./gradlew -q printVersion)" >> $GITHUB_ENV
         shell: bash
       - name: SH script for deploy develop
         if: github.event_name == 'push' && contains(github.ref, 'develop')

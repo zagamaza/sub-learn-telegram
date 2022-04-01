@@ -33,11 +33,11 @@ public class TextInfraServiceImpl implements TextInfraService {
 
     @Override
     @Cacheable(value = "users", key = "#userId")
-    public UserDto saveUser(Update update, Integer userId) {
+    public UserDto saveUser(Update update, Long userId) {
         User user = telegramService.getUser(update);
         UserDto userDto = null;
         try {
-            userDto = userClientApi.getByTelegramId(userId.longValue());
+            userDto = userClientApi.getByTelegramId(userId);
         } catch (Exception ignored) {}
         if (userDto == null) {
             userDto = userClientApi.save(UserRequest.from(user));

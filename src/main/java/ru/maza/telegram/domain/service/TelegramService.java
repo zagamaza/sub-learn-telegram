@@ -23,9 +23,9 @@ import java.util.List;
 
 public interface TelegramService {
 
-    Long getChatId(Update update);
+    String getChatId(Update update);
 
-    Integer getUserId(Update update);
+    Long getUserId(Update update);
 
     Message getMessage(Update update);
 

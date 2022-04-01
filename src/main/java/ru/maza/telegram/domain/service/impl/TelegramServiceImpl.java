@@ -50,7 +50,7 @@ public class TelegramServiceImpl implements TelegramService {
     private final Parser<CallbackData> callbackDataParser;
 
     @Override
-    public Integer getUserId(Update update) {
+    public Long getUserId(Update update) {
         if (update.getCallbackQuery() != null) {
             return update.getCallbackQuery().getFrom().getId();
         } else {
@@ -79,16 +79,18 @@ public class TelegramServiceImpl implements TelegramService {
     }
 
     @Override
-    public Long getChatId(Update update) {
+    public String getChatId(Update update) {
+        Long chatId;
         if (update.hasCallbackQuery() && update.getCallbackQuery().getMessage() != null) {
-            return update.getCallbackQuery().getMessage().getChatId();
+            chatId = update.getCallbackQuery().getMessage().getChatId();
         } else if (update.getCallbackQuery() != null) {
-            return update.getCallbackQuery().getFrom().getId().longValue();
+            chatId = update.getCallbackQuery().getFrom().getId().longValue();
         } else if (update.hasInlineQuery()) {
-            return update.getInlineQuery().getFrom().getId().longValue();
+            chatId = update.getInlineQuery().getFrom().getId().longValue();
         } else {
-            return update.getMessage().getChatId();
+            chatId = update.getMessage().getChatId();
         }
+        return Long.toString(chatId);
     }
 
     @Override
@@ -130,7 +132,7 @@ public class TelegramServiceImpl implements TelegramService {
     @Override
     public SendChatAction getSendChatAction(Message message, ActionType actionType) {
         SendChatAction sendChatAction = new SendChatAction();
-        sendChatAction.setChatId(message.getChatId());
+        sendChatAction.setChatId(Long.toString(message.getChatId()));
         sendChatAction.setAction(actionType);
         return sendChatAction;
     }
@@ -225,7 +227,9 @@ public class TelegramServiceImpl implements TelegramService {
             button.setText(but.getName());
             if (callbackData != null) {
                 button.setCallbackData(callbackDataParser.toJson(callbackData));
-            } else { button.setSwitchInlineQueryCurrentChat(""); }
+            } else {
+                button.setSwitchInlineQueryCurrentChat("");
+            }
             keyboardButtons.add(button);
             if (but.getCountButtonInLine() > 1) {
                 continue;
@@ -249,7 +253,7 @@ public class TelegramServiceImpl implements TelegramService {
     @Override
     public EditMessageReplyMarkup deleteInlineKeyboard(Long chatId, Integer messageId) {
         EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
-        editMessageReplyMarkup.setChatId(chatId);
+        editMessageReplyMarkup.setChatId(Long.toString(chatId));
         editMessageReplyMarkup.setMessageId(messageId);
         return editMessageReplyMarkup;
     }
@@ -257,7 +261,7 @@ public class TelegramServiceImpl implements TelegramService {
     @Override
     public AnswerInlineQuery getAnswerInlineQuery(Update update) {
         AnswerInlineQuery answerInlineQuery = new AnswerInlineQuery();
-        answerInlineQuery.setPersonal(true);
+        answerInlineQuery.setIsPersonal(true);
         answerInlineQuery.setInlineQueryId(update.getInlineQuery().getId());
         return answerInlineQuery;
     }
@@ -296,14 +300,14 @@ public class TelegramServiceImpl implements TelegramService {
     public InlineQueryResultArticle fillInlineQueryResultPhoto(FoundCollection foundCollection) {
         InlineQueryResultArticle inlineQueryResultArticle = new InlineQueryResultArticle();
         inlineQueryResultArticle.setDescription("year: " + foundCollection.getYear() +
-                                                        "\n" + "type: " + foundCollection.getType());
+                "\n" + "type: " + foundCollection.getType());
         inlineQueryResultArticle.setHideUrl(true);
         inlineQueryResultArticle.setId(UUID.randomUUID().toString());
         inlineQueryResultArticle.setTitle(foundCollection.getTitle());
         String url = foundCollection.getPoster();
-        if (url.startsWith("http")){
+        if (url.startsWith("http")) {
             inlineQueryResultArticle.setThumbUrl(foundCollection.getPoster());
-        }else {
+        } else {
             inlineQueryResultArticle.setThumbUrl(EMPTY_IMAGE);
         }
         InlineKeyboardMarkup keyboardMarkup = getKeyboardMarkup2(List.of(
@@ -326,7 +330,7 @@ public class TelegramServiceImpl implements TelegramService {
     public List<BotApiMethod> getTelegramMessage(Update update, InlineKeyboardMarkup keyboardMarkup, String text) {
         EditMessageText editMessage;
         SendMessage sendMessage;
-        if (update.hasCallbackQuery()&& update.getCallbackQuery().getMessage() != null) {
+        if (update.hasCallbackQuery() && update.getCallbackQuery().getMessage() != null) {
             editMessage = getEditMessage(update);
             editMessage.setReplyMarkup(keyboardMarkup);
             editMessage.setText(text);

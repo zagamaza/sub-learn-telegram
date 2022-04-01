@@ -55,7 +55,7 @@ public class NotificationInfraServiceImpl implements NotificationInfraService {
                           .getContent()
                           .stream()
                           .findFirst()
-                          .ifPresent(n -> answerCallbackQuery = new AnswerCallbackQuery().setText(n.getText()));
+                          .ifPresent(n -> answerCallbackQuery = AnswerCallbackQuery.builder().text(n.getText()).build());
     }
 
     @Override
